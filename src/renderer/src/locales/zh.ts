@@ -68,6 +68,13 @@ export const zh: T = {
   // Dialogs
   discardChanges: '放弃未保存的更改？',
 
+  // Wallpaper
+  wallpaper: '壁纸',
+  chooseImage: '选择图片',
+  removeWallpaper: '移除',
+  bgOpacity: '背景透明度',
+  noWallpaper: '未设置壁纸',
+
   // ThemeManager
   dark: '深色',
   light: '浅色',

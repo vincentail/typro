@@ -109,6 +109,19 @@ export function registerFileHandlers(): void {
     }
   })
 
+  ipcMain.handle('file:openImage', async () => {
+    const { filePaths, canceled } = await dialog.showOpenDialog(getWin(), {
+      title: 'Select Wallpaper Image',
+      properties: ['openFile'],
+      filters: [
+        { name: 'Images', extensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'] },
+        { name: 'All Files', extensions: ['*'] }
+      ]
+    })
+    if (canceled || !filePaths[0]) return null
+    return filePaths[0]
+  })
+
   ipcMain.handle('file:exportPdf', async (_event, html: string, defaultName: string) => {
     const win = getWin()
     const { filePath, canceled } = await dialog.showSaveDialog(win, {

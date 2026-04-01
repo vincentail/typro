@@ -7,12 +7,24 @@ import { BUILTIN_THEMES, ALL_CURATED } from './lib/themes/registry'
 import { initShiki } from './lib/markdown/shiki'
 import { useT } from './locales'
 
+function hexToRgba(hex: string, alpha: number): string {
+  const h = hex.replace('#', '')
+  const r = parseInt(h.slice(0, 2), 16)
+  const g = parseInt(h.slice(2, 4), 16)
+  const b = parseInt(h.slice(4, 6), 16)
+  return `rgba(${r},${g},${b},${alpha})`
+}
+
+function toTyproUrl(filePath: string): string {
+  return 'typro://' + filePath.replace(/\\/g, '/').replace(/[\s"'()]/g, encodeURIComponent)
+}
+
 const typro = (window as unknown as { typro: Window['typro'] }).typro
 
 const BUILTIN_IDS = new Set(BUILTIN_THEMES.map((t) => t.id))
 
 export default function App() {
-  const { theme, setTheme, setViewMode, toggleSidebar, toggleFocusMode, toggleToolbar, language } = useUiStore()
+  const { theme, setTheme, setViewMode, toggleSidebar, toggleFocusMode, toggleToolbar, language, wallpaperPath, bgOpacity } = useUiStore()
   const { content, filePath, isDirty, openFile, newFile, setDirty } = useEditorStore()
   const { activeThemeId, customThemes, setActiveTheme } = useThemeStore()
   const t = useT()
@@ -169,6 +181,50 @@ ${renderMarkdown(content)}
 
     return () => unsubs.forEach((fn) => fn && fn())
   }, [content, filePath, isDirty, openFile, newFile, setDirty, setViewMode, toggleSidebar, toggleFocusMode])
+
+  // Wallpaper + background opacity
+  useEffect(() => {
+    const styleId = 'typro-wallpaper'
+    let styleEl = document.getElementById(styleId) as HTMLStyleElement | null
+
+    if (!wallpaperPath) {
+      styleEl?.remove()
+      return
+    }
+
+    const themeDef =
+      ALL_CURATED.find((t) => t.id === theme) ||
+      customThemes.find((t) => t.id === theme)
+
+    const url = toTyproUrl(wallpaperPath)
+
+    if (!styleEl) {
+      styleEl = document.createElement('style')
+      styleEl.id = styleId
+      document.head.appendChild(styleEl)
+    }
+
+    const bgOverrides = themeDef ? `
+      :root, [data-theme='${theme}'] {
+        --bg-primary: ${hexToRgba(themeDef.variables['--bg-primary'], bgOpacity)};
+        --bg-secondary: ${hexToRgba(themeDef.variables['--bg-secondary'], bgOpacity)};
+        --bg-sidebar: ${hexToRgba(themeDef.variables['--bg-sidebar'], bgOpacity)};
+        --bg-titlebar: ${hexToRgba(themeDef.variables['--bg-titlebar'], bgOpacity)};
+      }` : ''
+
+    styleEl.textContent = `
+      html {
+        background-image: url("${url}");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+      }
+      html, body, #root {
+        background-color: transparent !important;
+      }
+      ${bgOverrides}
+    `
+  }, [wallpaperPath, bgOpacity, theme, customThemes])
 
   // Sync language to Electron menu
   useEffect(() => {

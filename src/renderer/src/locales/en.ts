@@ -66,6 +66,13 @@ export const en = {
   // Dialogs
   discardChanges: 'Discard unsaved changes?',
 
+  // Wallpaper
+  wallpaper: 'Wallpaper',
+  chooseImage: 'Choose Image',
+  removeWallpaper: 'Remove',
+  bgOpacity: 'Background Opacity',
+  noWallpaper: 'No wallpaper set',
+
   // ThemeManager
   dark: 'Dark',
   light: 'Light',

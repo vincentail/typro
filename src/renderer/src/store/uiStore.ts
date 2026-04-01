@@ -15,6 +15,8 @@ interface UiState {
   editorFontSize: number
   lineHeight: number
   language: Lang
+  wallpaperPath: string
+  bgOpacity: number
   setViewMode: (mode: ViewMode) => void
   setTheme: (theme: ThemeName) => void
   toggleSidebar: () => void
@@ -24,6 +26,8 @@ interface UiState {
   setEditorFontSize: (size: number) => void
   setLineHeight: (lh: number) => void
   setLanguage: (lang: Lang) => void
+  setWallpaperPath: (path: string) => void
+  setBgOpacity: (opacity: number) => void
 }
 
 export const useUiStore = create<UiState>()(
@@ -37,6 +41,8 @@ export const useUiStore = create<UiState>()(
       editorFontSize: 14,
       lineHeight: 1.7,
       language: 'zh',
+      wallpaperPath: '',
+      bgOpacity: 0.85,
       setViewMode: (viewMode) => set({ viewMode }),
       setTheme: (theme) => set({ theme }),
       toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
@@ -46,10 +52,12 @@ export const useUiStore = create<UiState>()(
       setEditorFontSize: (editorFontSize) => set({ editorFontSize: Math.min(28, Math.max(10, editorFontSize)) }),
       setLineHeight: (lineHeight) => set({ lineHeight }),
       setLanguage: (language) => set({ language }),
+      setWallpaperPath: (wallpaperPath) => set({ wallpaperPath }),
+      setBgOpacity: (bgOpacity) => set({ bgOpacity: Math.min(1, Math.max(0, bgOpacity)) }),
     }),
     {
       name: 'typro-ui',
-      partialize: (s) => ({ language: s.language })
+      partialize: (s) => ({ language: s.language, wallpaperPath: s.wallpaperPath, bgOpacity: s.bgOpacity })
     }
   )
 )

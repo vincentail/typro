@@ -3,6 +3,7 @@ import { useEditorStore } from '../../store/editorStore'
 import { useUiStore } from '../../store/uiStore'
 import { useThemeStore } from '../../store/themeStore'
 import { ThemeManager } from '../theme/ThemeManager'
+import { WallpaperPanel } from '../wallpaper/WallpaperPanel'
 import { useT } from '../../locales'
 import styles from './TitleBar.module.css'
 
@@ -14,6 +15,8 @@ export function TitleBar() {
   const { viewMode, setViewMode, sidebarOpen, toggleSidebar, toolbarVisible, toggleToolbar, language, setLanguage } = useUiStore()
   const { activeThemeId, getAllInstalled } = useThemeStore()
   const [themeOpen, setThemeOpen] = useState(false)
+  const [wallpaperOpen, setWallpaperOpen] = useState(false)
+  const { wallpaperPath } = useUiStore()
   const t = useT()
 
   const fileName = filePath ? filePath.split(/[\\/]/).pop() : 'Untitled'
@@ -109,6 +112,18 @@ export function TitleBar() {
           </div>
 
           <button
+            className={`${styles.iconBtn} ${wallpaperPath ? styles.active : ''}`}
+            onClick={() => setWallpaperOpen((v) => !v)}
+            title={t.wallpaper}
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+              <rect x="1" y="1" width="12" height="12" rx="2" fill="none" stroke="currentColor" strokeWidth="1.2"/>
+              <circle cx="4.5" cy="4.5" r="1.2"/>
+              <path d="M1 9.5l3-3 2.5 2.5 2-2 3.5 3.5" fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+
+          <button
             className={styles.langBtn}
             onClick={() => setLanguage(language === 'zh' ? 'en' : 'zh')}
             title={t.language}
@@ -131,6 +146,7 @@ export function TitleBar() {
       </div>
 
       {themeOpen && <ThemeManager onClose={() => setThemeOpen(false)} />}
+      {wallpaperOpen && <WallpaperPanel onClose={() => setWallpaperOpen(false)} />}
     </>
   )
 }
