@@ -1,0 +1,45 @@
+export {}
+
+declare global {
+  interface Window {
+    typro: {
+      file: {
+        open: () => Promise<{ path: string; content: string } | null>
+        openPath: (filePath: string) => Promise<{ path: string; content: string } | null>
+        save: (filePath: string, content: string) => Promise<{ success: boolean; error?: string }>
+        saveAs: (content: string) => Promise<{ path: string } | null>
+        getRecent: () => Promise<string[]>
+        clearRecent: () => Promise<void>
+        exportHtml: (html: string, defaultName: string) => Promise<{ path: string } | null>
+        exportPdf: (defaultName: string) => Promise<{ path: string } | null>
+      }
+      settings: {
+        get: () => Promise<Record<string, unknown>>
+        set: (key: string, value: unknown) => Promise<void>
+      }
+      theme: {
+        getNative: () => Promise<string>
+        onChanged: (callback: (theme: string) => void) => () => void
+      }
+      window: {
+        minimize: () => void
+        maximize: () => void
+        close: () => void
+        isMaximized: () => Promise<boolean>
+      }
+      menu: {
+        onNew: (callback: () => void) => () => void
+        onOpen: (callback: () => void) => () => void
+        onSave: (callback: () => void) => () => void
+        onSaveAs: (callback: () => void) => () => void
+        onFind: (callback: () => void) => () => void
+        onViewMode: (callback: (mode: string) => void) => () => void
+        onToggleSidebar: (callback: () => void) => () => void
+        onFocusMode: (callback: () => void) => () => void
+        onFormat: (callback: (format: string) => void) => () => void
+        onExportHtml: (callback: () => void) => () => void
+        onExportPdf: (callback: () => void) => () => void
+      }
+    }
+  }
+}

@@ -1,0 +1,57 @@
+import { useEffect, useMemo, useRef } from 'react'
+import DOMPurify from 'dompurify'
+import { renderMarkdown } from '../../lib/markdown/parser'
+import { useUiStore } from '../../store/uiStore'
+import styles from './MarkdownPreview.module.css'
+
+interface Props {
+  content: string
+}
+
+export function MarkdownPreview({ content }: Props) {
+  const { theme } = useUiStore()
+  const ref = useRef<HTMLDivElement>(null)
+
+  const rendered = useMemo(() => {
+    const html = renderMarkdown(content)
+    return DOMPurify.sanitize(html, {
+      ADD_TAGS: ['math', 'mrow', 'mi', 'mo', 'mn', 'msup', 'msub', 'mfrac', 'mspace', 'mtext'],
+      ADD_ATTR: ['xmlns', 'mathvariant', 'class', 'style', 'data-source-line', 'aria-hidden',
+                 'aria-label', 'href', 'id', 'type', 'checked', 'disabled']
+    })
+  }, [content])
+
+  // Handle external links
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const handler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      const a = target.closest('a')
+      if (!a) return
+      const href = a.getAttribute('href')
+      if (!href) return
+      if (href.startsWith('#')) return // in-page anchor
+      e.preventDefault()
+      // Open external links in browser
+      if (href.startsWith('http://') || href.startsWith('https://')) {
+        window.open(href, '_blank', 'noopener')
+      }
+    }
+    el.addEventListener('click', handler)
+    return () => el.removeEventListener('click', handler)
+  }, [rendered])
+
+  return (
+    <div
+      className={`${styles.previewContainer} ${styles[`theme-${theme}`] || ''}`}
+      data-theme={theme}
+    >
+      <div
+        ref={ref}
+        className={styles.preview}
+        dangerouslySetInnerHTML={{ __html: rendered }}
+      />
+    </div>
+  )
+}

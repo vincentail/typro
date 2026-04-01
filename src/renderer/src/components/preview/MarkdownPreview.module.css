@@ -1,0 +1,220 @@
+.previewContainer {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--bg-primary);
+  height: 100%;
+}
+
+.preview {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 32px 40px;
+  color: var(--text-primary);
+  font-family: var(--preview-font);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* Headings */
+.preview :global(h1),
+.preview :global(h2),
+.preview :global(h3),
+.preview :global(h4),
+.preview :global(h5),
+.preview :global(h6) {
+  font-weight: 600;
+  line-height: 1.25;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  color: var(--text-primary);
+}
+
+.preview :global(h1) { font-size: 2em; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3em; }
+.preview :global(h2) { font-size: 1.5em; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3em; }
+.preview :global(h3) { font-size: 1.25em; }
+.preview :global(h4) { font-size: 1em; }
+.preview :global(h5) { font-size: 0.875em; }
+.preview :global(h6) { font-size: 0.85em; color: var(--text-secondary); }
+
+/* Paragraphs */
+.preview :global(p) {
+  margin-top: 0;
+  margin-bottom: 1em;
+}
+
+/* Links */
+.preview :global(a) {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+.preview :global(a:hover) {
+  text-decoration: underline;
+  color: var(--accent-hover);
+}
+
+/* Anchor links from markdown-it-anchor */
+.preview :global(a.header-anchor) {
+  color: var(--text-muted);
+  opacity: 0;
+  margin-left: 0.5em;
+  font-size: 0.85em;
+  transition: opacity 0.15s;
+}
+.preview :global(h1:hover a.header-anchor),
+.preview :global(h2:hover a.header-anchor),
+.preview :global(h3:hover a.header-anchor) {
+  opacity: 1;
+}
+
+/* Code */
+.preview :global(code) {
+  font-family: var(--editor-font);
+  font-size: 0.875em;
+  background: var(--bg-secondary);
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  color: var(--text-primary);
+}
+
+.preview :global(pre) {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: auto;
+  margin: 1em 0;
+}
+
+.preview :global(pre code) {
+  background: transparent;
+  padding: 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* Shiki code blocks */
+.preview :global(.shiki) {
+  background: transparent !important;
+  padding: 16px 20px;
+  border-radius: 8px;
+  overflow: auto;
+}
+
+.preview :global(.shiki code) {
+  background: transparent;
+  padding: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  border-radius: 0;
+}
+
+/* Blockquotes */
+.preview :global(blockquote) {
+  margin: 1em 0;
+  padding: 0 1em;
+  border-left: 4px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+/* Tables */
+.preview :global(table) {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+  font-size: 14px;
+}
+
+.preview :global(th),
+.preview :global(td) {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  text-align: left;
+}
+
+.preview :global(th) {
+  background: var(--bg-secondary);
+  font-weight: 600;
+}
+
+.preview :global(tr:nth-child(even) td) {
+  background: var(--bg-secondary);
+}
+
+/* Lists */
+.preview :global(ul),
+.preview :global(ol) {
+  margin: 0.5em 0 1em;
+  padding-left: 2em;
+}
+
+.preview :global(li) {
+  margin: 0.25em 0;
+}
+
+.preview :global(li p) {
+  margin: 0;
+}
+
+/* Task lists */
+.preview :global(.task-list-item) {
+  list-style: none;
+  margin-left: -1.5em;
+}
+
+.preview :global(.task-list-item input[type='checkbox']) {
+  margin-right: 0.5em;
+  accent-color: var(--accent-color);
+}
+
+/* Images */
+.preview :global(img) {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  display: block;
+  margin: 1em auto;
+}
+
+/* Horizontal rule */
+.preview :global(hr) {
+  border: none;
+  border-top: 2px solid var(--border-color);
+  margin: 2em 0;
+}
+
+/* Math */
+.preview :global(.math-block) {
+  margin: 1em 0;
+  overflow-x: auto;
+  text-align: center;
+}
+
+.preview :global(.katex-display) {
+  margin: 0;
+}
+
+/* Footnotes */
+.preview :global(.footnotes) {
+  font-size: 0.875em;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border-color);
+  margin-top: 2em;
+  padding-top: 1em;
+}
+
+/* Selection */
+.preview ::selection {
+  background: var(--selection-bg);
+}
+
+/* Dark theme adjustments for shiki */
+[data-theme='dark'] .preview :global(pre),
+[data-theme='solarized-dark'] .preview :global(pre),
+[data-theme='dracula'] .preview :global(pre) {
+  background: var(--bg-secondary) !important;
+}
+
+[data-theme='dark'] .preview :global(.shiki),
+[data-theme='solarized-dark'] .preview :global(.shiki),
+[data-theme='dracula'] .preview :global(.shiki) {
+  background: var(--bg-secondary) !important;
+}

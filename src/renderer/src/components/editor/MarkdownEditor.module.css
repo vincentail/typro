@@ -1,0 +1,25 @@
+.editorContainer {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.editorContainer :global(.cm-editor) {
+  height: 100%;
+}
+
+.editorContainer :global(.cm-scroller) {
+  overflow: auto;
+  font-family: var(--editor-font);
+}
+
+.editorContainer :global(.cm-content) {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.editorContainer :global(.cm-focused) {
+  outline: none;
+}

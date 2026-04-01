@@ -1,0 +1,43 @@
+appId: com.typro.app
+productName: Typro
+directories:
+  buildResources: resources
+  output: dist
+
+files:
+  - out/**/*
+  - '!**/.eslintrc.{js,cjs}'
+  - '!**/{.DS_Store,.git}'
+
+mac:
+  target:
+    - target: dmg
+      arch: [x64, arm64]
+    - target: zip
+      arch: [x64, arm64]
+  category: public.app-category.productivity
+  darkModeSupport: true
+  icon: resources/icon.icns
+
+win:
+  target:
+    - target: nsis
+    - target: portable
+  icon: resources/icon.ico
+
+linux:
+  target:
+    - target: AppImage
+    - target: deb
+  icon: resources/icon.png
+  category: Office
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+
+publish:
+  provider: github
+  releaseType: release
