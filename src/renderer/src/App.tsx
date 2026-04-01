@@ -101,6 +101,17 @@ ${renderMarkdown(content)}
     return () => unsubs.forEach((fn) => fn && fn())
   }, [content, filePath, isDirty, openFile, newFile, setDirty, setViewMode, toggleSidebar, toggleFocusMode])
 
+  // Open file from OS (right-click "Open With" / double-click / CLI argument)
+  useEffect(() => {
+    if (!typro?.os?.onOpenFile) return
+    const unsubscribe = typro.os.onOpenFile(async (filePath: string) => {
+      if (isDirty && !confirm('Discard unsaved changes?')) return
+      const result = await typro.file.openPath(filePath)
+      if (result) openFile(result.path, result.content)
+    })
+    return unsubscribe
+  }, [isDirty, openFile])
+
   // Window title
   useEffect(() => {
     const name = filePath ? filePath.split('/').pop() : 'Untitled'

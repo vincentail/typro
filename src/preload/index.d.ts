@@ -41,5 +41,8 @@ declare global {
         onExportPdf: (callback: () => void) => () => void
       }
     }
+    os: {
+      onOpenFile: (callback: (filePath: string) => void) => () => void
+    }
   }
 }

@@ -79,6 +79,13 @@ const typro = {
       ipcRenderer.on('menu:exportPdf', callback)
       return () => ipcRenderer.removeListener('menu:exportPdf', callback)
     }
+  },
+  os: {
+    onOpenFile: (callback: (filePath: string) => void) => {
+      const handler = (_e: Electron.IpcRendererEvent, filePath: string) => callback(filePath)
+      ipcRenderer.on('file:openFromOS', handler)
+      return () => ipcRenderer.removeListener('file:openFromOS', handler)
+    }
   }
 }
 

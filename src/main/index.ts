@@ -6,9 +6,57 @@ import { registerWindowHandlers } from './ipc/window'
 import { registerThemeHandlers } from './ipc/theme'
 import { setupMenu } from './menu'
 import log from 'electron-log'
+import fs from 'fs'
 
 log.initialize()
 log.info('App starting...')
+
+// --- File-open queue ---------------------------------------------------------
+// macOS fires open-file before app is ready; Windows/Linux pass path via argv.
+// We buffer the path here and flush it once the renderer is ready.
+
+let pendingFilePath: string | null = null
+
+function isMarkdownFile(filePath: string): boolean {
+  return /\.(md|markdown|txt)$/i.test(filePath)
+}
+
+function openFileInWindow(win: BrowserWindow, filePath: string): void {
+  if (!fs.existsSync(filePath)) return
+  log.info('Opening file:', filePath)
+  win.webContents.send('file:openFromOS', filePath)
+}
+
+// macOS: right-click "Open With" or double-click registered file
+app.on('open-file', (event, filePath) => {
+  event.preventDefault()
+  if (!isMarkdownFile(filePath)) return
+  const wins = BrowserWindow.getAllWindows()
+  if (wins.length > 0) {
+    openFileInWindow(wins[0], filePath)
+  } else {
+    pendingFilePath = filePath
+  }
+})
+
+// Windows / Linux: single-instance lock so second launch sends path here
+const gotLock = app.requestSingleInstanceLock()
+if (!gotLock) {
+  app.quit()
+} else {
+  app.on('second-instance', (_event, argv) => {
+    // argv on Windows/Linux: [..., filePath]
+    const filePath = argv.find((a) => isMarkdownFile(a))
+    const wins = BrowserWindow.getAllWindows()
+    if (filePath && wins.length > 0) {
+      if (wins[0].isMinimized()) wins[0].restore()
+      wins[0].focus()
+      openFileInWindow(wins[0], filePath)
+    }
+  })
+}
+
+// -----------------------------------------------------------------------------
 
 function createWindow(): BrowserWindow {
   const win = new BrowserWindow({
@@ -29,7 +77,14 @@ function createWindow(): BrowserWindow {
     }
   })
 
-  win.on('ready-to-show', () => win.show())
+  win.on('ready-to-show', () => {
+    win.show()
+    // Flush any file path that arrived before the window was ready
+    if (pendingFilePath) {
+      openFileInWindow(win, pendingFilePath)
+      pendingFilePath = null
+    }
+  })
 
   win.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url)
@@ -64,6 +119,10 @@ app.whenReady().then(() => {
 
   const win = createWindow()
   setupMenu(win)
+
+  // Windows / Linux: handle file path passed as CLI argument on first launch
+  const argvFile = process.argv.find((a) => isMarkdownFile(a))
+  if (argvFile) pendingFilePath = argvFile
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
