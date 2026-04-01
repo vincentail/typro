@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useEditorStore } from '../../store/editorStore'
+import { useT } from '../../locales'
 import styles from './RecentFiles.module.css'
 
 const typro = (window as unknown as { typro: Window['typro'] }).typro
@@ -7,6 +8,7 @@ const typro = (window as unknown as { typro: Window['typro'] }).typro
 export function RecentFiles() {
   const [recentFiles, setRecentFiles] = useState<string[]>([])
   const { filePath, isDirty, openFile } = useEditorStore()
+  const t = useT()
 
   useEffect(() => {
     if (!typro?.file?.getRecent) return
@@ -14,7 +16,7 @@ export function RecentFiles() {
   }, [filePath])
 
   const openRecent = async (path: string) => {
-    if (isDirty && !confirm('Discard unsaved changes?')) return
+    if (isDirty && !confirm(t.discardChanges)) return
     const result = await typro.file.openPath(path)
     if (result) {
       openFile(result.path, result.content)
@@ -32,15 +34,15 @@ export function RecentFiles() {
   if (recentFiles.length === 0) {
     return (
       <div className={styles.empty}>
-        <p>No recent files.</p>
-        <p>Open a file with Cmd+O.</p>
+        <p>{t.noRecentFiles}</p>
+        <p>{t.openHint}</p>
       </div>
     )
   }
 
   return (
     <div className={styles.files}>
-      <div className={styles.header}>Recent Files</div>
+      <div className={styles.header}>{t.recentFiles}</div>
       {recentFiles.map((path) => {
         const { name, dir } = formatPath(path)
         const isActive = path === filePath

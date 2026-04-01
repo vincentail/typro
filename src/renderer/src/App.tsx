@@ -5,15 +5,17 @@ import { useEditorStore } from './store/editorStore'
 import { useThemeStore } from './store/themeStore'
 import { BUILTIN_THEMES, ALL_CURATED } from './lib/themes/registry'
 import { initShiki } from './lib/markdown/shiki'
+import { useT } from './locales'
 
 const typro = (window as unknown as { typro: Window['typro'] }).typro
 
 const BUILTIN_IDS = new Set(BUILTIN_THEMES.map((t) => t.id))
 
 export default function App() {
-  const { theme, setTheme, setViewMode, toggleSidebar, toggleFocusMode, toggleToolbar } = useUiStore()
+  const { theme, setTheme, setViewMode, toggleSidebar, toggleFocusMode, toggleToolbar, language } = useUiStore()
   const { content, filePath, isDirty, openFile, newFile, setDirty } = useEditorStore()
   const { activeThemeId, customThemes, setActiveTheme } = useThemeStore()
+  const t = useT()
 
   // Keep uiStore.theme in sync with themeStore.activeThemeId (single source of truth)
   useEffect(() => {
@@ -78,11 +80,11 @@ export default function App() {
 
     const unsubs = [
       typro.menu.onNew(() => {
-        if (isDirty && !confirm('Discard unsaved changes?')) return
+        if (isDirty && !confirm(t.discardChanges)) return
         newFile()
       }),
       typro.menu.onOpen(async () => {
-        if (isDirty && !confirm('Discard unsaved changes?')) return
+        if (isDirty && !confirm(t.discardChanges)) return
         const result = await typro.file.open()
         if (result) openFile(result.path, result.content)
       }),
@@ -168,11 +170,16 @@ ${renderMarkdown(content)}
     return () => unsubs.forEach((fn) => fn && fn())
   }, [content, filePath, isDirty, openFile, newFile, setDirty, setViewMode, toggleSidebar, toggleFocusMode])
 
+  // Sync language to Electron menu
+  useEffect(() => {
+    typro?.menu?.setLanguage?.(language)
+  }, [language])
+
   // Open file from OS (right-click "Open With" / double-click / CLI argument)
   useEffect(() => {
     if (!typro?.os?.onOpenFile) return
     const unsubscribe = typro.os.onOpenFile(async (filePath: string) => {
-      if (isDirty && !confirm('Discard unsaved changes?')) return
+      if (isDirty && !confirm(t.discardChanges)) return
       const result = await typro.file.openPath(filePath)
       if (result) openFile(result.path, result.content)
     })

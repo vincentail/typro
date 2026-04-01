@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { EditorView } from '@codemirror/view'
 import { useEditorStore } from '../../store/editorStore'
 import { useUiStore } from '../../store/uiStore'
+import { useT } from '../../locales'
 import {
   wrapSelection, setHeading, getHeadingLevel, toggleLinePrefix,
   insertBlock, insertLink, insertImage, insertTable,
@@ -14,7 +15,6 @@ interface Props {
 }
 
 const LINE_HEIGHTS = [1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.4]
-const HEADING_LABELS = ['正文', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6']
 const PRESET_COLORS = [
   '#ef4444', '#f97316', '#eab308', '#22c55e',
   '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6',
@@ -28,6 +28,7 @@ const PRESET_HIGHLIGHTS = [
 export function Toolbar({ editorView }: Props) {
   const { toolbarVisible, editorFontSize, lineHeight, setEditorFontSize, setLineHeight, focusMode } = useUiStore()
   const cursorPos = useEditorStore((s) => s.cursorPos)
+  const t = useT()
 
   const [headingLevel, setHeadingLevelState] = useState(0)
   const [colorPickerOpen, setColorPickerOpen] = useState<'text' | 'highlight' | null>(null)
@@ -65,16 +66,18 @@ export function Toolbar({ editorView }: Props) {
     fn(editorView)
   }
 
+  const HEADING_LABELS = [t.paragraphLabel, 'H1', 'H2', 'H3', 'H4', 'H5', 'H6']
+
   return (
     <div className={`${styles.wrapper} ${toolbarVisible ? styles.visible : ''}`}>
       <div className={styles.inner}>
         <div className={styles.toolbar}>
 
           {/* ── History ── */}
-          <button className={styles.btn} title="撤销 (⌘Z)" onClick={() => run((v) => undo(v))}>
+          <button className={styles.btn} title={t.undo} onClick={() => run((v) => undo(v))}>
             <UndoIcon />
           </button>
-          <button className={styles.btn} title="重做 (⌘⇧Z)" onClick={() => run((v) => redo(v))}>
+          <button className={styles.btn} title={t.redo} onClick={() => run((v) => redo(v))}>
             <RedoIcon />
           </button>
 
@@ -84,7 +87,7 @@ export function Toolbar({ editorView }: Props) {
           <select
             className={styles.select}
             value={headingLevel}
-            title="段落/标题"
+            title={t.paragraphHeading}
             onChange={(e) => run((v) => setHeading(v, Number(e.target.value)))}
           >
             {HEADING_LABELS.map((label, i) => (
@@ -95,22 +98,22 @@ export function Toolbar({ editorView }: Props) {
           <span className={styles.sep} />
 
           {/* ── Text formatting ── */}
-          <button className={styles.btn} title="粗体 (⌘B)" onClick={() => run((v) => wrapSelection(v, '**', '**'))}>
+          <button className={styles.btn} title={t.bold} onClick={() => run((v) => wrapSelection(v, '**', '**'))}>
             <b>B</b>
           </button>
-          <button className={`${styles.btn} ${styles.italic}`} title="斜体 (⌘I)" onClick={() => run((v) => wrapSelection(v, '*', '*'))}>
+          <button className={`${styles.btn} ${styles.italic}`} title={t.italic} onClick={() => run((v) => wrapSelection(v, '*', '*'))}>
             <i>I</i>
           </button>
-          <button className={`${styles.btn} ${styles.strike}`} title="删除线 (⌘⇧S)" onClick={() => run((v) => wrapSelection(v, '~~', '~~'))}>
+          <button className={`${styles.btn} ${styles.strike}`} title={t.strikethrough} onClick={() => run((v) => wrapSelection(v, '~~', '~~'))}>
             S
           </button>
-          <button className={`${styles.btn} ${styles.codeInline}`} title="行内代码 (⌘`)" onClick={() => run((v) => wrapSelection(v, '`', '`'))}>
+          <button className={`${styles.btn} ${styles.codeInline}`} title={t.inlineCode} onClick={() => run((v) => wrapSelection(v, '`', '`'))}>
             {'</>'}
           </button>
-          <button className={styles.btn} title="上标" onClick={() => run((v) => wrapSelection(v, '<sup>', '</sup>'))}>
+          <button className={styles.btn} title={t.superscript} onClick={() => run((v) => wrapSelection(v, '<sup>', '</sup>'))}>
             x<sup>2</sup>
           </button>
-          <button className={styles.btn} title="下标" onClick={() => run((v) => wrapSelection(v, '<sub>', '</sub>'))}>
+          <button className={styles.btn} title={t.subscript} onClick={() => run((v) => wrapSelection(v, '<sub>', '</sub>'))}>
             x<sub>2</sub>
           </button>
 
@@ -120,14 +123,14 @@ export function Toolbar({ editorView }: Props) {
           <div className={styles.colorGroup} ref={colorPickerRef}>
             <button
               className={`${styles.btn} ${styles.colorBtn}`}
-              title="文字颜色"
+              title={t.textColor}
               onClick={() => setColorPickerOpen(colorPickerOpen === 'text' ? null : 'text')}
             >
               <ColorTextIcon />
             </button>
             <button
               className={`${styles.btn} ${styles.colorBtn}`}
-              title="高亮背景色"
+              title={t.highlightColor}
               onClick={() => setColorPickerOpen(colorPickerOpen === 'highlight' ? null : 'highlight')}
             >
               <ColorHighlightIcon />
@@ -135,7 +138,7 @@ export function Toolbar({ editorView }: Props) {
             {colorPickerOpen && (
               <div className={styles.colorPalette}>
                 <div className={styles.paletteLabel}>
-                  {colorPickerOpen === 'text' ? '文字颜色' : '高亮颜色'}
+                  {colorPickerOpen === 'text' ? t.paletteTextColor : t.paletteHighlightColor}
                 </div>
                 <div className={styles.colorSwatches}>
                   {(colorPickerOpen === 'text' ? PRESET_COLORS : PRESET_HIGHLIGHTS).map((c) => (
@@ -152,7 +155,7 @@ export function Toolbar({ editorView }: Props) {
                     />
                   ))}
                   {/* Custom color via native picker */}
-                  <label className={styles.swatchCustom} title="自定义颜色">
+                  <label className={styles.swatchCustom} title={t.customColor}>
                     <span>+</span>
                     <input
                       type="color"
@@ -173,42 +176,42 @@ export function Toolbar({ editorView }: Props) {
           <span className={styles.sep} />
 
           {/* ── Lists ── */}
-          <button className={styles.btn} title="无序列表" onClick={() => run((v) => toggleLinePrefix(v, '- '))}>
+          <button className={styles.btn} title={t.bulletList} onClick={() => run((v) => toggleLinePrefix(v, '- '))}>
             <BulletIcon />
           </button>
-          <button className={styles.btn} title="有序列表" onClick={() => run((v) => toggleLinePrefix(v, '1. '))}>
+          <button className={styles.btn} title={t.orderedList} onClick={() => run((v) => toggleLinePrefix(v, '1. '))}>
             <OrderedIcon />
           </button>
-          <button className={styles.btn} title="任务列表" onClick={() => run((v) => toggleLinePrefix(v, '- [ ] '))}>
+          <button className={styles.btn} title={t.taskList} onClick={() => run((v) => toggleLinePrefix(v, '- [ ] '))}>
             <TaskIcon />
           </button>
 
           <span className={styles.sep} />
 
           {/* ── Block elements ── */}
-          <button className={styles.btn} title="引用块" onClick={() => run((v) => toggleLinePrefix(v, '> '))}>
+          <button className={styles.btn} title={t.blockquote} onClick={() => run((v) => toggleLinePrefix(v, '> '))}>
             <QuoteIcon />
           </button>
-          <button className={styles.btn} title="代码块" onClick={() => run((v) => insertBlock(v, '\n```\n\n```\n', 5))}>
+          <button className={styles.btn} title={t.codeBlock} onClick={() => run((v) => insertBlock(v, '\n```\n\n```\n', 5))}>
             <CodeBlockIcon />
           </button>
-          <button className={styles.btn} title="数学公式块 ($$)" onClick={() => run((v) => insertBlock(v, '\n$$\n\n$$\n', 4))}>
+          <button className={styles.btn} title={t.mathBlock} onClick={() => run((v) => insertBlock(v, '\n$$\n\n$$\n', 4))}>
             ∑
           </button>
 
           <span className={styles.sep} />
 
           {/* ── Insert elements ── */}
-          <button className={styles.btn} title="插入链接 (⌘K)" onClick={() => run(insertLink)}>
+          <button className={styles.btn} title={t.insertLink} onClick={() => run(insertLink)}>
             <LinkIcon />
           </button>
-          <button className={styles.btn} title="插入图片 (⌘⇧I)" onClick={() => run(insertImage)}>
+          <button className={styles.btn} title={t.insertImage} onClick={() => run(insertImage)}>
             <ImageIcon />
           </button>
-          <button className={styles.btn} title="插入表格 (⌘⌥T)" onClick={() => run((v) => insertTable(v))}>
+          <button className={styles.btn} title={t.insertTable} onClick={() => run((v) => insertTable(v))}>
             <TableIcon />
           </button>
-          <button className={styles.btn} title="水平分割线" onClick={() => run((v) => insertBlock(v, '\n\n---\n\n'))}>
+          <button className={styles.btn} title={t.horizontalRule} onClick={() => run((v) => insertBlock(v, '\n\n---\n\n'))}>
             <HrIcon />
           </button>
 
@@ -216,11 +219,11 @@ export function Toolbar({ editorView }: Props) {
           <span className={styles.spacer} />
 
           {/* ── Line height ── */}
-          <span className={styles.label}>行距</span>
+          <span className={styles.label}>{t.lineHeight}</span>
           <select
             className={styles.select}
             value={lineHeight}
-            title="行间距"
+            title={t.lineHeightTooltip}
             onChange={(e) => setLineHeight(Number(e.target.value))}
           >
             {LINE_HEIGHTS.map((lh) => (
@@ -231,10 +234,10 @@ export function Toolbar({ editorView }: Props) {
           <span className={styles.sep} />
 
           {/* ── Font size ── */}
-          <span className={styles.label}>字号</span>
-          <button className={styles.btn} title="减小字号" onClick={() => setEditorFontSize(editorFontSize - 1)}>−</button>
+          <span className={styles.label}>{t.fontSize}</span>
+          <button className={styles.btn} title={t.decreaseFontSize} onClick={() => setEditorFontSize(editorFontSize - 1)}>−</button>
           <span className={styles.sizeDisplay}>{editorFontSize}px</span>
-          <button className={styles.btn} title="增大字号" onClick={() => setEditorFontSize(editorFontSize + 1)}>+</button>
+          <button className={styles.btn} title={t.increaseFontSize} onClick={() => setEditorFontSize(editorFontSize + 1)}>+</button>
 
         </div>
       </div>

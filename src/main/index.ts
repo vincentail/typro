@@ -4,7 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { registerFileHandlers } from './ipc/file'
 import { registerWindowHandlers } from './ipc/window'
 import { registerThemeHandlers } from './ipc/theme'
-import { setupMenu } from './menu'
+import { setupMenu, setupMenuIpc } from './menu'
 import log from 'electron-log'
 import fs from 'fs'
 
@@ -141,6 +141,7 @@ app.whenReady().then(() => {
 
   const win = createWindow()
   setupMenu(win)
+  setupMenuIpc(win)
 
   // Windows / Linux: handle file path passed as CLI argument on first launch
   const argvFile = process.argv.find((a) => isMarkdownFile(a))

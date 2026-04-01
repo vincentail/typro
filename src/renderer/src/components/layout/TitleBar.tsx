@@ -3,6 +3,7 @@ import { useEditorStore } from '../../store/editorStore'
 import { useUiStore } from '../../store/uiStore'
 import { useThemeStore } from '../../store/themeStore'
 import { ThemeManager } from '../theme/ThemeManager'
+import { useT } from '../../locales'
 import styles from './TitleBar.module.css'
 
 const typro = (window as unknown as { typro: Window['typro'] }).typro
@@ -10,9 +11,10 @@ const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
 
 export function TitleBar() {
   const { filePath, isDirty } = useEditorStore()
-  const { viewMode, setViewMode, sidebarOpen, toggleSidebar, toolbarVisible, toggleToolbar } = useUiStore()
+  const { viewMode, setViewMode, sidebarOpen, toggleSidebar, toolbarVisible, toggleToolbar, language, setLanguage } = useUiStore()
   const { activeThemeId, getAllInstalled } = useThemeStore()
   const [themeOpen, setThemeOpen] = useState(false)
+  const t = useT()
 
   const fileName = filePath ? filePath.split(/[\\/]/).pop() : 'Untitled'
   const activeTheme = getAllInstalled().find((t) => t.id === activeThemeId)
@@ -44,7 +46,7 @@ export function TitleBar() {
           <button
             className={`${styles.iconBtn} ${sidebarOpen ? styles.active : ''}`}
             onClick={toggleSidebar}
-            title="切换侧边栏 (⌘⇧L)"
+            title={t.toggleSidebar}
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
               <path d="M2 3h12v1H2V3zm0 4h8v1H2V7zm0 4h10v1H2v-1z"/>
@@ -53,7 +55,7 @@ export function TitleBar() {
           <button
             className={`${styles.iconBtn} ${toolbarVisible ? styles.active : ''}`}
             onClick={toggleToolbar}
-            title="切换工具栏 (⌘⇧T)"
+            title={t.toggleToolbar}
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
               <rect x="1" y="3" width="14" height="2" rx="1"/>
@@ -77,7 +79,7 @@ export function TitleBar() {
             <button
               className={`${styles.viewBtn} ${viewMode === 'source' ? styles.activeView : ''}`}
               onClick={() => setViewMode('source')}
-              title="Source Mode"
+              title={t.sourceMode}
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
                 <path d="M1 3h12v1H1V3zm0 4h12v1H1V7zm0 4h8v1H1v-1z"/>
@@ -86,7 +88,7 @@ export function TitleBar() {
             <button
               className={`${styles.viewBtn} ${viewMode === 'split' ? styles.activeView : ''}`}
               onClick={() => setViewMode('split')}
-              title="Split View"
+              title={t.splitView}
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
                 <path d="M1 2h5v10H1V2zm7 0h6v10H8V2zM6 2h2v10H6V2z" opacity=".3"/>
@@ -97,7 +99,7 @@ export function TitleBar() {
             <button
               className={`${styles.viewBtn} ${viewMode === 'preview' ? styles.activeView : ''}`}
               onClick={() => setViewMode('preview')}
-              title="Preview Mode"
+              title={t.previewMode}
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
                 <path d="M1 2h12v10H1V2zm1 1v8h10V3H2z"/>
@@ -107,9 +109,17 @@ export function TitleBar() {
           </div>
 
           <button
+            className={styles.langBtn}
+            onClick={() => setLanguage(language === 'zh' ? 'en' : 'zh')}
+            title={t.language}
+          >
+            {language === 'zh' ? 'EN' : '中'}
+          </button>
+
+          <button
             className={styles.themeBtn}
             onClick={() => setThemeOpen(true)}
-            title="Theme Manager"
+            title={t.themeManager}
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
               <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.2" fill="none"/>

@@ -128,6 +128,27 @@
   color: var(--accent-color);
 }
 
+.langBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  transition: border-color 0.15s, color 0.15s;
+  -webkit-app-region: no-drag;
+}
+.langBtn:hover {
+  border-color: var(--accent-color);
+  color: var(--text-primary);
+}
+
 .themeBtn {
   display: flex;
   align-items: center;

@@ -82,7 +82,8 @@ const typro = {
     onToggleToolbar: (callback: () => void) => {
       ipcRenderer.on('menu:toggleToolbar', callback)
       return () => ipcRenderer.removeListener('menu:toggleToolbar', callback)
-    }
+    },
+    setLanguage: (lang: string) => ipcRenderer.send('menu:setLanguage', lang)
   },
   os: {
     onOpenFile: (callback: (filePath: string) => void) => {

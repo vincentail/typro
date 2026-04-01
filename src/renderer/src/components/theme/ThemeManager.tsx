@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { useThemeStore } from '../../store/themeStore'
+import { useT } from '../../locales'
 import { BUILTIN_THEMES, CURATED_THEMES, ThemeDefinition, ThemeVars } from '../../lib/themes/registry'
 import styles from './ThemeManager.module.css'
 
@@ -43,6 +44,7 @@ function ThemeCard({
   onInstall?: () => void
   onUninstall?: () => void
 }) {
+  const t = useT()
   return (
     <div
       className={`${styles.card} ${active ? styles.activeCard : ''}`}
@@ -53,22 +55,22 @@ function ThemeCard({
         <div className={styles.cardName}>
           {theme.name}
           <span className={`${styles.badge} ${theme.isDark ? styles.dark : styles.light}`}>
-            {theme.isDark ? 'Dark' : 'Light'}
+            {theme.isDark ? t.dark : t.light}
           </span>
         </div>
         <div className={styles.cardDesc}>{theme.description}</div>
         {theme.author && <div className={styles.cardAuthor}>by {theme.author}</div>}
       </div>
       <div className={styles.cardActions}>
-        {active && <span className={styles.activeLabel}>✓ Active</span>}
+        {active && <span className={styles.activeLabel}>{t.activeLabel}</span>}
         {installed && !active && (
-          <button className={styles.applyBtn} onClick={onSelect}>Apply</button>
+          <button className={styles.applyBtn} onClick={onSelect}>{t.apply}</button>
         )}
         {installed && !theme.builtin && (
-          <button className={styles.removeBtn} onClick={(e) => { e.stopPropagation(); onUninstall?.() }}>Remove</button>
+          <button className={styles.removeBtn} onClick={(e) => { e.stopPropagation(); onUninstall?.() }}>{t.remove}</button>
         )}
         {!installed && (
-          <button className={styles.installBtn} onClick={(e) => { e.stopPropagation(); onInstall?.() }}>Install</button>
+          <button className={styles.installBtn} onClick={(e) => { e.stopPropagation(); onInstall?.() }}>{t.install}</button>
         )}
       </div>
     </div>
@@ -80,6 +82,7 @@ function ImportTab({ onImported }: { onImported: (theme: ThemeDefinition) => voi
   const [jsonText, setJsonText] = useState('')
   const [error, setError] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
+  const t = useT()
 
   const REQUIRED_VARS: (keyof ThemeVars)[] = [
     '--bg-primary', '--bg-secondary', '--bg-sidebar', '--bg-titlebar',
@@ -153,12 +156,10 @@ function ImportTab({ onImported }: { onImported: (theme: ThemeDefinition) => voi
 
   return (
     <div className={styles.importTab}>
-      <p className={styles.importHint}>
-        Paste a theme JSON or load a <code>.json</code> file. The JSON must include all required CSS variables.
-      </p>
+      <p className={styles.importHint}>{t.importHint}</p>
       <div className={styles.importActions}>
         <button className={styles.fileBtn} onClick={() => fileRef.current?.click()}>
-          Load from file…
+          {t.loadFromFile}
         </button>
         <input ref={fileRef} type="file" accept=".json" hidden onChange={handleFile} />
       </div>
@@ -171,11 +172,11 @@ function ImportTab({ onImported }: { onImported: (theme: ThemeDefinition) => voi
       />
       {error && <div className={styles.importError}>{error}</div>}
       <button className={styles.importBtn} onClick={handleImport} disabled={!jsonText.trim()}>
-        Import Theme
+        {t.importTheme}
       </button>
 
       <div className={styles.schemaBox}>
-        <div className={styles.schemaTitle}>Required fields</div>
+        <div className={styles.schemaTitle}>{t.requiredFields}</div>
         <code className={styles.schema}>
           id, name, isDark, variables: &#123; {REQUIRED_VARS.join(', ')} &#125;
         </code>
@@ -188,6 +189,7 @@ function ImportTab({ onImported }: { onImported: (theme: ThemeDefinition) => voi
 export function ThemeManager({ onClose }: Props) {
   const [tab, setTab] = useState<Tab>('installed')
   const [search, setSearch] = useState('')
+  const t = useT()
   const {
     activeThemeId,
     installedCuratedIds,
@@ -201,21 +203,21 @@ export function ThemeManager({ onClose }: Props) {
 
   const allInstalled = getAllInstalled()
 
-  const browseList = CURATED_THEMES.filter((t) => {
-    if (installedCuratedIds.includes(t.id)) return false
+  const browseList = CURATED_THEMES.filter((theme) => {
+    if (installedCuratedIds.includes(theme.id)) return false
     if (!search) return true
     return (
-      t.name.toLowerCase().includes(search.toLowerCase()) ||
-      t.description.toLowerCase().includes(search.toLowerCase()) ||
-      (t.author ?? '').toLowerCase().includes(search.toLowerCase())
+      theme.name.toLowerCase().includes(search.toLowerCase()) ||
+      theme.description.toLowerCase().includes(search.toLowerCase()) ||
+      (theme.author ?? '').toLowerCase().includes(search.toLowerCase())
     )
   })
 
   const installedSearch = search
     ? allInstalled.filter(
-        (t) =>
-          t.name.toLowerCase().includes(search.toLowerCase()) ||
-          (t.author ?? '').toLowerCase().includes(search.toLowerCase())
+        (theme) =>
+          theme.name.toLowerCase().includes(search.toLowerCase()) ||
+          (theme.author ?? '').toLowerCase().includes(search.toLowerCase())
       )
     : allInstalled
 
@@ -231,9 +233,9 @@ export function ThemeManager({ onClose }: Props) {
     setTab('installed')
   }
 
-  const isCustom = (id: string) => customThemes.some((t) => t.id === id)
+  const isCustom = (id: string) => customThemes.some((theme) => theme.id === id)
   const isInstalled = (id: string) =>
-    BUILTIN_THEMES.some((t) => t.id === id) ||
+    BUILTIN_THEMES.some((theme) => theme.id === id) ||
     installedCuratedIds.includes(id) ||
     isCustom(id)
 
@@ -241,26 +243,26 @@ export function ThemeManager({ onClose }: Props) {
     <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className={styles.modal}>
         <div className={styles.header}>
-          <h2 className={styles.title}>Theme Manager</h2>
+          <h2 className={styles.title}>{t.themeManagerTitle}</h2>
           <button className={styles.closeBtn} onClick={onClose} title="Close">✕</button>
         </div>
 
         <div className={styles.tabs}>
           <button className={`${styles.tab} ${tab === 'installed' ? styles.activeTab : ''}`} onClick={() => setTab('installed')}>
-            Installed ({allInstalled.length})
+            {t.installed} ({allInstalled.length})
           </button>
           <button className={`${styles.tab} ${tab === 'browse' ? styles.activeTab : ''}`} onClick={() => setTab('browse')}>
-            Browse ({CURATED_THEMES.length - installedCuratedIds.length})
+            {t.browse} ({CURATED_THEMES.length - installedCuratedIds.length})
           </button>
           <button className={`${styles.tab} ${tab === 'import' ? styles.activeTab : ''}`} onClick={() => setTab('import')}>
-            Import
+            {t.importTab}
           </button>
 
           {(tab === 'installed' || tab === 'browse') && (
             <input
               className={styles.search}
               type="search"
-              placeholder="Search themes…"
+              placeholder={t.searchPlaceholder}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -270,37 +272,37 @@ export function ThemeManager({ onClose }: Props) {
         <div className={styles.body}>
           {tab === 'installed' && (
             <div className={styles.grid}>
-              {installedSearch.map((t) => (
+              {installedSearch.map((theme) => (
                 <ThemeCard
-                  key={t.id}
-                  theme={t}
-                  active={t.id === activeThemeId}
+                  key={theme.id}
+                  theme={theme}
+                  active={theme.id === activeThemeId}
                   installed={true}
-                  onSelect={() => setActiveTheme(t.id)}
-                  onUninstall={() => uninstallTheme(t.id)}
+                  onSelect={() => setActiveTheme(theme.id)}
+                  onUninstall={() => uninstallTheme(theme.id)}
                 />
               ))}
               {installedSearch.length === 0 && (
-                <div className={styles.empty}>No themes match your search.</div>
+                <div className={styles.empty}>{t.noThemeMatch}</div>
               )}
             </div>
           )}
 
           {tab === 'browse' && (
             <div className={styles.grid}>
-              {browseList.map((t) => (
+              {browseList.map((theme) => (
                 <ThemeCard
-                  key={t.id}
-                  theme={t}
-                  active={t.id === activeThemeId}
-                  installed={isInstalled(t.id)}
-                  onSelect={() => setActiveTheme(t.id)}
-                  onInstall={() => handleInstall(t.id)}
+                  key={theme.id}
+                  theme={theme}
+                  active={theme.id === activeThemeId}
+                  installed={isInstalled(theme.id)}
+                  onSelect={() => setActiveTheme(theme.id)}
+                  onInstall={() => handleInstall(theme.id)}
                 />
               ))}
               {browseList.length === 0 && (
                 <div className={styles.empty}>
-                  {search ? 'No themes match your search.' : 'All available themes are installed.'}
+                  {search ? t.noThemeMatch : t.allInstalled}
                 </div>
               )}
             </div>
