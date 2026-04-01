@@ -84,7 +84,17 @@ const typro = {
       ipcRenderer.on('menu:toggleToolbar', callback)
       return () => ipcRenderer.removeListener('menu:toggleToolbar', callback)
     },
-    setLanguage: (lang: string) => ipcRenderer.send('menu:setLanguage', lang)
+    setLanguage: (lang: string) => ipcRenderer.send('menu:setLanguage', lang),
+    updateRecent: (lang: string) => ipcRenderer.send('menu:updateRecent', lang),
+    onOpenRecent: (callback: (filePath: string) => void) => {
+      const handler = (_e: Electron.IpcRendererEvent, filePath: string) => callback(filePath)
+      ipcRenderer.on('menu:openRecent', handler)
+      return () => ipcRenderer.removeListener('menu:openRecent', handler)
+    },
+    onRecentCleared: (callback: () => void) => {
+      ipcRenderer.on('menu:recentCleared', callback)
+      return () => ipcRenderer.removeListener('menu:recentCleared', callback)
+    }
   },
   os: {
     onOpenFile: (callback: (filePath: string) => void) => {

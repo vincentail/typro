@@ -98,13 +98,14 @@ export default function App() {
       typro.menu.onOpen(async () => {
         if (isDirty && !confirm(t.discardChanges)) return
         const result = await typro.file.open()
-        if (result) openFile(result.path, result.content)
+        if (result) { openFile(result.path, result.content); typro.menu.updateRecent(language) }
       }),
       typro.menu.onSave(async () => {
         if (!filePath) {
           const result = await typro.file.saveAs(content)
           if (result) {
             useEditorStore.setState({ filePath: result.path, isDirty: false })
+            typro.menu.updateRecent(language)
           }
         } else {
           await typro.file.save(filePath, content)
@@ -115,7 +116,16 @@ export default function App() {
         const result = await typro.file.saveAs(content)
         if (result) {
           useEditorStore.setState({ filePath: result.path, isDirty: false })
+          typro.menu.updateRecent(language)
         }
+      }),
+      typro.menu.onOpenRecent(async (recentPath: string) => {
+        if (isDirty && !confirm(t.discardChanges)) return
+        const result = await typro.file.openPath(recentPath)
+        if (result) { openFile(result.path, result.content); typro.menu.updateRecent(language) }
+      }),
+      typro.menu.onRecentCleared(() => {
+        useEditorStore.getState().bumpRecentVersion()
       }),
       typro.menu.onViewMode((mode: string) => {
         setViewMode(mode as 'source' | 'split' | 'preview')
@@ -237,7 +247,7 @@ ${renderMarkdown(content)}
     const unsubscribe = typro.os.onOpenFile(async (filePath: string) => {
       if (isDirty && !confirm(t.discardChanges)) return
       const result = await typro.file.openPath(filePath)
-      if (result) openFile(result.path, result.content)
+      if (result) { openFile(result.path, result.content); typro.menu.updateRecent(language) }
     })
     return unsubscribe
   }, [isDirty, openFile])

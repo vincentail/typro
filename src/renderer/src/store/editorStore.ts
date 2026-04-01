@@ -83,6 +83,7 @@ export const useEditorStore = create<{
   isDirty: boolean
   wordCount: WordCount
   cursorPos: CursorPos
+  recentVersion: number
   setContent: (content: string) => void
   setFilePath: (filePath: string | null) => void
   setDirty: (dirty: boolean) => void
@@ -90,17 +91,20 @@ export const useEditorStore = create<{
   setCursorPos: (pos: CursorPos) => void
   openFile: (filePath: string, content: string) => void
   newFile: () => void
+  bumpRecentVersion: () => void
 }>((set) => ({
   content: WELCOME_CONTENT,
   filePath: null,
   isDirty: false,
   wordCount: { words: 0, chars: 0, lines: 0 },
   cursorPos: { line: 1, col: 1 },
+  recentVersion: 0,
   setContent: (content) => set({ content, isDirty: true }),
   setFilePath: (filePath) => set({ filePath }),
   setDirty: (isDirty) => set({ isDirty }),
   setWordCount: (wordCount) => set({ wordCount }),
   setCursorPos: (cursorPos) => set({ cursorPos }),
   openFile: (filePath, content) => set({ filePath, content, isDirty: false }),
-  newFile: () => set({ filePath: null, content: '# Untitled\n\n', isDirty: false })
+  newFile: () => set({ filePath: null, content: '# Untitled\n\n', isDirty: false }),
+  bumpRecentVersion: () => set((s) => ({ recentVersion: s.recentVersion + 1 }))
 }))

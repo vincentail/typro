@@ -7,13 +7,13 @@ const typro = (window as unknown as { typro: Window['typro'] }).typro
 
 export function RecentFiles() {
   const [recentFiles, setRecentFiles] = useState<string[]>([])
-  const { filePath, isDirty, openFile } = useEditorStore()
+  const { filePath, isDirty, openFile, recentVersion } = useEditorStore()
   const t = useT()
 
   useEffect(() => {
     if (!typro?.file?.getRecent) return
     typro.file.getRecent().then(setRecentFiles)
-  }, [filePath])
+  }, [filePath, recentVersion])
 
   const openRecent = async (path: string) => {
     if (isDirty && !confirm(t.discardChanges)) return

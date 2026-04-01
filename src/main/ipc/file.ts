@@ -19,6 +19,14 @@ function getWin(): BrowserWindow {
   return BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]
 }
 
+export function getRecentFiles(): string[] {
+  return store.get('recentFiles', [])
+}
+
+export function clearRecentFiles(): void {
+  store.set('recentFiles', [])
+}
+
 function addToRecentFiles(filePath: string): void {
   const recent: string[] = store.get('recentFiles', [])
   const filtered = recent.filter((f) => f !== filePath)

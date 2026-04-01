@@ -1,10 +1,13 @@
 import { Menu, BrowserWindow, app, shell, ipcMain } from 'electron'
+import { basename } from 'path'
+import { getRecentFiles, clearRecentFiles } from './ipc/file'
 
 type Lang = 'zh' | 'en'
 
 const menuStrings = {
   en: {
     file: 'File', new: 'New', open: 'Open...', save: 'Save', saveAs: 'Save As...',
+    openRecent: 'Open Recent', noRecentFiles: 'No Recent Files', clearRecent: 'Clear Recent Files',
     exportHtml: 'Export as HTML', exportPdf: 'Export as PDF',
     edit: 'Edit', find: 'Find',
     view: 'View', sourceMode: 'Source Mode', splitView: 'Split View', previewMode: 'Preview Mode',
@@ -16,6 +19,7 @@ const menuStrings = {
   },
   zh: {
     file: '文件', new: '新建', open: '打开...', save: '保存', saveAs: '另存为...',
+    openRecent: '最近文件', noRecentFiles: '无最近文件', clearRecent: '清除最近文件',
     exportHtml: '导出为 HTML', exportPdf: '导出为 PDF',
     edit: '编辑', find: '查找',
     view: '视图', sourceMode: '源码模式', splitView: '分栏视图', previewMode: '预览模式',
@@ -25,6 +29,33 @@ const menuStrings = {
     heading1: '标题 1', heading2: '标题 2', heading3: '标题 3',
     help: '帮助', learnMore: '了解更多',
   },
+}
+
+function buildRecentSubmenu(
+  win: BrowserWindow,
+  s: typeof menuStrings['en'],
+  lang: Lang
+): Electron.MenuItemConstructorOptions[] {
+  const recent = getRecentFiles()
+  if (recent.length === 0) {
+    return [{ label: s.noRecentFiles, enabled: false }]
+  }
+  return [
+    ...recent.map((filePath) => ({
+      label: basename(filePath),
+      sublabel: filePath,
+      click: () => win.webContents.send('menu:openRecent', filePath)
+    })),
+    { type: 'separator' as const },
+    {
+      label: s.clearRecent,
+      click: () => {
+        clearRecentFiles()
+        setupMenu(win, lang)
+        win.webContents.send('menu:recentCleared')
+      }
+    }
+  ]
 }
 
 export function setupMenu(win: BrowserWindow, lang: Lang = 'zh'): void {
@@ -62,6 +93,10 @@ export function setupMenu(win: BrowserWindow, lang: Lang = 'zh'): void {
           label: s.open,
           accelerator: 'CmdOrCtrl+O',
           click: () => win.webContents.send('menu:open')
+        },
+        {
+          label: s.openRecent,
+          submenu: buildRecentSubmenu(win, s, lang)
         },
         { type: 'separator' },
         {
@@ -221,6 +256,9 @@ export function setupMenu(win: BrowserWindow, lang: Lang = 'zh'): void {
 
 export function setupMenuIpc(win: BrowserWindow): void {
   ipcMain.on('menu:setLanguage', (_event, lang: Lang) => {
+    setupMenu(win, lang)
+  })
+  ipcMain.on('menu:updateRecent', (_event, lang: Lang) => {
     setupMenu(win, lang)
   })
 }
