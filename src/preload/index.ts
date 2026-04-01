@@ -12,7 +12,7 @@ const typro = {
     clearRecent: () => ipcRenderer.invoke('file:clearRecent'),
     exportHtml: (html: string, defaultName: string) =>
       ipcRenderer.invoke('file:exportHtml', html, defaultName),
-    exportPdf: (defaultName: string) => ipcRenderer.invoke('file:exportPdf', defaultName)
+    exportPdf: (html: string, defaultName: string) => ipcRenderer.invoke('file:exportPdf', html, defaultName)
   },
   settings: {
     get: () => ipcRenderer.invoke('settings:get'),

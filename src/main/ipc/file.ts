@@ -1,5 +1,6 @@
-import { ipcMain, dialog, BrowserWindow } from 'electron'
+import { ipcMain, dialog, BrowserWindow, app } from 'electron'
 import fs from 'fs/promises'
+import { join } from 'path'
 import Store from 'electron-store'
 
 interface StoreSchema {
@@ -108,7 +109,7 @@ export function registerFileHandlers(): void {
     }
   })
 
-  ipcMain.handle('file:exportPdf', async (_event, defaultName: string) => {
+  ipcMain.handle('file:exportPdf', async (_event, html: string, defaultName: string) => {
     const win = getWin()
     const { filePath, canceled } = await dialog.showSaveDialog(win, {
       title: 'Export as PDF',
@@ -116,15 +117,33 @@ export function registerFileHandlers(): void {
       filters: [{ name: 'PDF', extensions: ['pdf'] }]
     })
     if (canceled || !filePath) return null
+
+    // Write HTML to a temp file so the hidden window can load it with a
+    // file:// URL (avoids data-URL length limits and allows CDN resource loads)
+    const tmpPath = join(app.getPath('temp'), `typro-pdf-${Date.now()}.html`)
+    await fs.writeFile(tmpPath, html, 'utf-8')
+
+    const printWin = new BrowserWindow({
+      show: false,
+      webPreferences: { nodeIntegration: false, contextIsolation: true }
+    })
+
     try {
-      const pdfBuffer = await win.webContents.printToPDF({
+      await printWin.loadFile(tmpPath)
+      // Allow a short delay for web fonts / CDN stylesheets to finish loading
+      await new Promise((r) => setTimeout(r, 800))
+      const pdfBuffer = await printWin.webContents.printToPDF({
         printBackground: true,
-        pageSize: 'A4'
+        pageSize: 'A4',
+        margins: { marginType: 'default' }
       })
       await fs.writeFile(filePath, pdfBuffer)
       return { path: filePath }
     } catch {
       return null
+    } finally {
+      printWin.destroy()
+      fs.unlink(tmpPath).catch(() => {})
     }
   })
 }

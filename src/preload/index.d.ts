@@ -11,7 +11,7 @@ declare global {
         getRecent: () => Promise<string[]>
         clearRecent: () => Promise<void>
         exportHtml: (html: string, defaultName: string) => Promise<{ path: string } | null>
-        exportPdf: (defaultName: string) => Promise<{ path: string } | null>
+        exportPdf: (html: string, defaultName: string) => Promise<{ path: string } | null>
       }
       settings: {
         get: () => Promise<Record<string, unknown>>

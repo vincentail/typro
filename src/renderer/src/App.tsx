@@ -127,7 +127,41 @@ ${renderMarkdown(content)}
         await typro.file.exportHtml(html, filePath || 'document.md')
       }),
       typro.menu.onExportPdf(async () => {
-        await typro.file.exportPdf(filePath || 'document.md')
+        const { renderMarkdown } = await import('./lib/markdown/parser')
+        const { getPdfPreviewCss } = await import('./lib/themes/pdf-styles')
+        const { getActiveTheme } = useThemeStore.getState()
+        const activeDef = getActiveTheme()
+
+        // Build :root CSS vars from active theme (fallback to light values)
+        const themeVars = activeDef
+          ? Object.entries(activeDef.variables)
+              .map(([k, v]) => `  ${k}: ${v};`)
+              .join('\n')
+          : ''
+
+        const docTitle = filePath ? filePath.split('/').pop()!.replace(/\.md$/, '') : 'document'
+
+        const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>${docTitle}</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<style>
+:root {
+${themeVars}
+}
+${getPdfPreviewCss()}
+</style>
+</head>
+<body>
+<div class="preview">
+${renderMarkdown(content)}
+</div>
+</body>
+</html>`
+
+        await typro.file.exportPdf(html, filePath || 'document.md')
       })
     ]
 
