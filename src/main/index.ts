@@ -1,4 +1,4 @@
-import { app, BrowserWindow, shell, nativeTheme, protocol } from 'electron'
+import { app, BrowserWindow, shell, protocol } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { registerFileHandlers } from './ipc/file'
@@ -6,8 +6,6 @@ import { registerWindowHandlers } from './ipc/window'
 import { registerThemeHandlers } from './ipc/theme'
 import { setupMenu } from './menu'
 import log from 'electron-log'
-import path from 'path'
-import fs from 'fs'
 
 log.initialize()
 log.info('App starting...')
@@ -31,9 +29,7 @@ function createWindow(): BrowserWindow {
     }
   })
 
-  win.on('ready-to-show', () => {
-    win.show()
-  })
+  win.on('ready-to-show', () => win.show())
 
   win.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url)
@@ -52,10 +48,8 @@ function createWindow(): BrowserWindow {
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.typro.app')
 
-  // Register typro:// protocol for local images
   protocol.registerFileProtocol('typro', (request, callback) => {
-    const url = request.url.replace('typro://', '')
-    const filePath = decodeURIComponent(url)
+    const filePath = decodeURIComponent(request.url.replace('typro://', ''))
     callback({ path: filePath })
   })
 
@@ -63,25 +57,22 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
+  // Register IPC handlers once — they are global, not per-window
+  registerFileHandlers()
+  registerWindowHandlers()
+  registerThemeHandlers()
+
   const win = createWindow()
   setupMenu(win)
-  registerFileHandlers(win)
-  registerWindowHandlers(win)
-  registerThemeHandlers(win)
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       const newWin = createWindow()
       setupMenu(newWin)
-      registerFileHandlers(newWin)
-      registerWindowHandlers(newWin)
-      registerThemeHandlers(newWin)
     }
   })
 })
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
+  if (process.platform !== 'darwin') app.quit()
 })

@@ -1,6 +1,5 @@
-import { ipcMain, dialog, BrowserWindow, app } from 'electron'
+import { ipcMain, dialog, BrowserWindow } from 'electron'
 import fs from 'fs/promises'
-import path from 'path'
 import Store from 'electron-store'
 
 interface StoreSchema {
@@ -15,6 +14,10 @@ const store = new Store<StoreSchema>({
   }
 })
 
+function getWin(): BrowserWindow {
+  return BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]
+}
+
 function addToRecentFiles(filePath: string): void {
   const recent: string[] = store.get('recentFiles', [])
   const filtered = recent.filter((f) => f !== filePath)
@@ -22,9 +25,9 @@ function addToRecentFiles(filePath: string): void {
   store.set('recentFiles', filtered.slice(0, 10))
 }
 
-export function registerFileHandlers(win: BrowserWindow): void {
+export function registerFileHandlers(): void {
   ipcMain.handle('file:open', async () => {
-    const { filePaths, canceled } = await dialog.showOpenDialog(win, {
+    const { filePaths, canceled } = await dialog.showOpenDialog(getWin(), {
       title: 'Open Markdown File',
       properties: ['openFile'],
       filters: [
@@ -37,7 +40,7 @@ export function registerFileHandlers(win: BrowserWindow): void {
       const content = await fs.readFile(filePaths[0], 'utf-8')
       addToRecentFiles(filePaths[0])
       return { path: filePaths[0], content }
-    } catch (err) {
+    } catch {
       return null
     }
   })
@@ -47,7 +50,7 @@ export function registerFileHandlers(win: BrowserWindow): void {
       const content = await fs.readFile(filePath, 'utf-8')
       addToRecentFiles(filePath)
       return { path: filePath, content }
-    } catch (err) {
+    } catch {
       return null
     }
   })
@@ -62,7 +65,7 @@ export function registerFileHandlers(win: BrowserWindow): void {
   })
 
   ipcMain.handle('file:saveAs', async (_event, content: string) => {
-    const { filePath, canceled } = await dialog.showSaveDialog(win, {
+    const { filePath, canceled } = await dialog.showSaveDialog(getWin(), {
       title: 'Save Markdown File',
       defaultPath: 'untitled.md',
       filters: [
@@ -75,29 +78,23 @@ export function registerFileHandlers(win: BrowserWindow): void {
       await fs.writeFile(filePath, content, 'utf-8')
       addToRecentFiles(filePath)
       return { path: filePath }
-    } catch (err) {
+    } catch {
       return null
     }
   })
 
-  ipcMain.handle('file:getRecent', () => {
-    return store.get('recentFiles', [])
-  })
+  ipcMain.handle('file:getRecent', () => store.get('recentFiles', []))
 
-  ipcMain.handle('file:clearRecent', () => {
-    store.set('recentFiles', [])
-  })
+  ipcMain.handle('file:clearRecent', () => store.set('recentFiles', []))
 
-  ipcMain.handle('settings:get', () => {
-    return store.store
-  })
+  ipcMain.handle('settings:get', () => store.store)
 
   ipcMain.handle('settings:set', (_event, key: string, value: unknown) => {
     store.set(key as keyof StoreSchema, value as StoreSchema[keyof StoreSchema])
   })
 
   ipcMain.handle('file:exportHtml', async (_event, html: string, defaultName: string) => {
-    const { filePath, canceled } = await dialog.showSaveDialog(win, {
+    const { filePath, canceled } = await dialog.showSaveDialog(getWin(), {
       title: 'Export as HTML',
       defaultPath: defaultName.replace(/\.md$/, '.html'),
       filters: [{ name: 'HTML', extensions: ['html'] }]
@@ -106,12 +103,13 @@ export function registerFileHandlers(win: BrowserWindow): void {
     try {
       await fs.writeFile(filePath, html, 'utf-8')
       return { path: filePath }
-    } catch (err) {
+    } catch {
       return null
     }
   })
 
   ipcMain.handle('file:exportPdf', async (_event, defaultName: string) => {
+    const win = getWin()
     const { filePath, canceled } = await dialog.showSaveDialog(win, {
       title: 'Export as PDF',
       defaultPath: defaultName.replace(/\.md$/, '.pdf'),
@@ -125,7 +123,7 @@ export function registerFileHandlers(win: BrowserWindow): void {
       })
       await fs.writeFile(filePath, pdfBuffer)
       return { path: filePath }
-    } catch (err) {
+    } catch {
       return null
     }
   })
