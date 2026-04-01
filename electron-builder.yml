@@ -9,6 +9,11 @@ files:
   - '!**/.eslintrc.{js,cjs}'
   - '!**/{.DS_Store,.git}'
 
+# Place icon.png outside asar so app.dock.setIcon() can load it on macOS
+extraResources:
+  - from: resources/icon.png
+    to: icon.png
+
 # File associations — register .md / .markdown / .txt on all platforms
 fileAssociations:
   - ext: md

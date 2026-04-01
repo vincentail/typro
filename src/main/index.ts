@@ -60,13 +60,12 @@ if (!gotLock) {
 
 // Resolve icon path that works in both dev and packaged app
 function getIconPath(): string {
-  // In packaged app __dirname is inside app.asar, resources sit one level up
-  const candidates = [
-    join(__dirname, '../../resources/icon.png'),       // dev: out/main/ → resources/
-    join(process.resourcesPath ?? '', 'icon.png'),     // packaged: Resources/icon.png
-    join(app.getAppPath(), '../resources/icon.png'),   // fallback
-  ]
-  return candidates.find((p) => fs.existsSync(p)) ?? candidates[0]
+  if (app.isPackaged) {
+    // extraResources copies icon.png to Contents/Resources/ (outside asar)
+    return join(process.resourcesPath, 'icon.png')
+  }
+  // Dev: __dirname = out/main/, resources/ is at project root (two levels up)
+  return join(__dirname, '../../resources/icon.png')
 }
 
 function createWindow(): BrowserWindow {
@@ -128,7 +127,11 @@ app.whenReady().then(() => {
 
   // macOS Dock icon (works in both dev and packaged)
   if (process.platform === 'darwin') {
-    app.dock.setIcon(getIconPath())
+    try {
+      app.dock.setIcon(getIconPath())
+    } catch (e) {
+      log.warn('dock.setIcon failed:', e)
+    }
   }
 
   // Register IPC handlers once — they are global, not per-window
