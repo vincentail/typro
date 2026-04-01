@@ -58,7 +58,19 @@ if (!gotLock) {
 
 // -----------------------------------------------------------------------------
 
+// Resolve icon path that works in both dev and packaged app
+function getIconPath(): string {
+  // In packaged app __dirname is inside app.asar, resources sit one level up
+  const candidates = [
+    join(__dirname, '../../resources/icon.png'),       // dev: out/main/ → resources/
+    join(process.resourcesPath ?? '', 'icon.png'),     // packaged: Resources/icon.png
+    join(app.getAppPath(), '../resources/icon.png'),   // fallback
+  ]
+  return candidates.find((p) => fs.existsSync(p)) ?? candidates[0]
+}
+
 function createWindow(): BrowserWindow {
+  const iconPath = getIconPath()
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
@@ -68,6 +80,8 @@ function createWindow(): BrowserWindow {
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'hidden',
     trafficLightPosition: { x: 16, y: 16 },
     backgroundColor: '#ffffff',
+    // Windows / Linux: set window & taskbar icon explicitly
+    ...(process.platform !== 'darwin' ? { icon: iconPath } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
@@ -111,6 +125,11 @@ app.whenReady().then(() => {
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
+
+  // macOS Dock icon (works in both dev and packaged)
+  if (process.platform === 'darwin') {
+    app.dock.setIcon(getIconPath())
+  }
 
   // Register IPC handlers once — they are global, not per-window
   registerFileHandlers()
