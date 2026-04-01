@@ -102,6 +102,11 @@ export function setupMenu(win: BrowserWindow): void {
           click: () => win.webContents.send('menu:toggleSidebar')
         },
         {
+          label: 'Toggle Toolbar',
+          accelerator: 'CmdOrCtrl+Shift+T',
+          click: () => win.webContents.send('menu:toggleToolbar')
+        },
+        {
           label: 'Focus Mode',
           accelerator: 'F8',
           click: () => win.webContents.send('menu:focusMode')

@@ -7,7 +7,7 @@ import { initShiki } from './lib/markdown/shiki'
 const typro = (window as unknown as { typro: Window['typro'] }).typro
 
 export default function App() {
-  const { theme, setTheme, setViewMode, toggleSidebar, toggleFocusMode } = useUiStore()
+  const { theme, setTheme, setViewMode, toggleSidebar, toggleFocusMode, toggleToolbar } = useUiStore()
   const { content, filePath, isDirty, openFile, newFile, setDirty } = useEditorStore()
 
   // Apply theme to document
@@ -76,6 +76,7 @@ export default function App() {
       }),
       typro.menu.onToggleSidebar(() => toggleSidebar()),
       typro.menu.onFocusMode(() => toggleFocusMode()),
+      typro.menu.onToggleToolbar(() => toggleToolbar()),
       typro.menu.onExportHtml(async () => {
         const { renderMarkdown } = await import('./lib/markdown/parser')
         const html = `<!DOCTYPE html>

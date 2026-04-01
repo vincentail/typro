@@ -1,0 +1,232 @@
+/* ── Slide-in/out animation using grid trick ── */
+.wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  overflow: hidden;
+  border-bottom: 1px solid transparent;
+}
+
+.wrapper.visible {
+  grid-template-rows: 1fr;
+  border-bottom-color: var(--border-color);
+}
+
+.inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── Toolbar bar ── */
+.toolbar {
+  height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  padding: 0 8px;
+  background: var(--bg-titlebar);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.toolbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Separator ── */
+.sep {
+  display: inline-block;
+  width: 1px;
+  height: 18px;
+  background: var(--border-color);
+  margin: 0 5px;
+  flex-shrink: 0;
+}
+
+/* ── Spacer pushes right-side controls to the end ── */
+.spacer {
+  flex: 1;
+  min-width: 8px;
+}
+
+/* ── Base button ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 26px;
+  padding: 0 5px;
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: background 0.1s, color 0.1s;
+  flex-shrink: 0;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.btn:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.btn:active {
+  background: var(--selection-bg);
+  color: var(--accent-color);
+}
+
+/* Italic "I" */
+.italic {
+  font-style: italic;
+}
+
+/* Strikethrough "S" */
+.strike {
+  text-decoration: line-through;
+}
+
+/* Inline code */
+.codeInline {
+  font-family: var(--editor-font);
+  font-size: 11px;
+  font-weight: 400;
+}
+
+/* ── Select / dropdown ── */
+.select {
+  height: 26px;
+  padding: 0 4px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  outline: none;
+  flex-shrink: 0;
+  min-width: 52px;
+  max-width: 72px;
+}
+
+.select:hover {
+  border-color: var(--accent-color);
+  color: var(--text-primary);
+}
+
+/* ── Color button ── */
+.colorGroup {
+  position: relative;
+  display: inline-flex;
+  gap: 1px;
+  align-items: center;
+}
+
+.colorBtn {
+  position: relative;
+}
+
+/* ── Color palette dropdown ── */
+.colorPalette {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 200;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  min-width: 180px;
+  animation: popIn 0.12s ease;
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: translateY(-4px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.paletteLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.colorSwatches {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+}
+
+.swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.swatch:hover {
+  transform: scale(1.2);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.swatchCustom {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 1px dashed var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-muted);
+  transition: border-color 0.1s, color 0.1s;
+  position: relative;
+}
+
+.swatchCustom:hover {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+.nativeColorInput {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+}
+
+/* ── Label ── */
+.label {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 0 3px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* ── Font size display ── */
+.sizeDisplay {
+  font-size: 12px;
+  color: var(--text-secondary);
+  min-width: 34px;
+  text-align: center;
+  flex-shrink: 0;
+}

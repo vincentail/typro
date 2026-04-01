@@ -33,12 +33,12 @@ const lightTheme = EditorView.theme({
     backgroundColor: 'var(--bg-primary)',
     color: 'var(--text-primary)',
     height: '100%',
-    fontSize: '14px'
+    fontSize: 'var(--cm-font-size, 14px)'
   },
   '.cm-content': {
     fontFamily: 'var(--editor-font)',
     padding: '16px 24px',
-    lineHeight: '1.7',
+    lineHeight: 'var(--cm-line-height, 1.7)',
     caretColor: 'var(--accent-color)'
   },
   '.cm-cursor': { borderLeftColor: 'var(--accent-color)' },

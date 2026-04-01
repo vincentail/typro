@@ -39,6 +39,7 @@ declare global {
         onFormat: (callback: (format: string) => void) => () => void
         onExportHtml: (callback: () => void) => () => void
         onExportPdf: (callback: () => void) => () => void
+      onToggleToolbar: (callback: () => void) => () => void
       }
     }
     os: {

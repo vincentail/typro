@@ -16,7 +16,7 @@ const THEMES: { value: ThemeName; label: string }[] = [
 
 export function TitleBar() {
   const { filePath, isDirty } = useEditorStore()
-  const { viewMode, setViewMode, theme, setTheme, sidebarOpen, toggleSidebar } = useUiStore()
+  const { viewMode, setViewMode, theme, setTheme, sidebarOpen, toggleSidebar, toolbarVisible, toggleToolbar } = useUiStore()
   const fileName = filePath ? filePath.split(/[\\/]/).pop() : 'Untitled'
 
   return (
@@ -45,10 +45,23 @@ export function TitleBar() {
         <button
           className={`${styles.iconBtn} ${sidebarOpen ? styles.active : ''}`}
           onClick={toggleSidebar}
-          title="Toggle Sidebar (Cmd+Shift+L)"
+          title="切换侧边栏 (⌘⇧L)"
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M2 3h12v1H2V3zm0 4h8v1H2V7zm0 4h10v1H2v-1z"/>
+          </svg>
+        </button>
+        <button
+          className={`${styles.iconBtn} ${toolbarVisible ? styles.active : ''}`}
+          onClick={toggleToolbar}
+          title="切换工具栏 (⌘⇧T)"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <rect x="1" y="3" width="14" height="2" rx="1"/>
+            <rect x="1" y="7" width="5" height="2" rx="1"/>
+            <rect x="7" y="7" width="3" height="2" rx="1"/>
+            <rect x="11" y="7" width="4" height="2" rx="1"/>
+            <rect x="1" y="11" width="8" height="2" rx="1"/>
           </svg>
         </button>
       </div>

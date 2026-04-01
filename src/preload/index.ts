@@ -78,6 +78,10 @@ const typro = {
     onExportPdf: (callback: () => void) => {
       ipcRenderer.on('menu:exportPdf', callback)
       return () => ipcRenderer.removeListener('menu:exportPdf', callback)
+    },
+    onToggleToolbar: (callback: () => void) => {
+      ipcRenderer.on('menu:toggleToolbar', callback)
+      return () => ipcRenderer.removeListener('menu:toggleToolbar', callback)
     }
   },
   os: {
