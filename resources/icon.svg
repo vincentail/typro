@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <!-- Main background gradient: deep indigo to rich violet -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E1B4B"/>
+      <stop offset="55%" stop-color="#312E81"/>
+      <stop offset="100%" stop-color="#4C1D95"/>
+    </linearGradient>
+    <!-- Inner glow overlay -->
+    <radialGradient id="glow" cx="38%" cy="32%" r="55%">
+      <stop offset="0%" stop-color="#6366F1" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#312E81" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Accent glow for pen nib -->
+    <linearGradient id="nibGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A5F3FC"/>
+      <stop offset="100%" stop-color="#38BDF8"/>
+    </linearGradient>
+    <!-- Gold accent gradient -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE68A"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+    <!-- White glow filter -->
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <!-- Drop shadow for main mark -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="20" flood-color="#000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- ── Background rounded square ── -->
+  <rect width="1024" height="1024" rx="210" ry="210" fill="url(#bgGrad)"/>
+  <!-- Glow overlay -->
+  <rect width="1024" height="1024" rx="210" ry="210" fill="url(#glow)"/>
+
+  <!-- ── Subtle background texture: faint markdown lines ── -->
+  <!-- # symbol ghost, top-left -->
+  <text x="68" y="200" font-family="'SF Mono', 'Fira Code', monospace"
+        font-size="130" font-weight="700" fill="#6366F1" opacity="0.18">#</text>
+  <!-- ** ghost, bottom-right -->
+  <text x="700" y="950" font-family="'SF Mono', 'Fira Code', monospace"
+        font-size="110" font-weight="700" fill="#6366F1" opacity="0.15">**</text>
+
+  <!-- ── Main mark: stylised feather quill forming a T ── -->
+  <!-- The quill is composed of:
+       1. A broad diagonal feather body (top-right to center)
+       2. A sharp nib pointing bottom-left
+       3. A horizontal crossbar (T bar) at the top of the stem
+       The whole shape suggests both a writing instrument and the letter T -->
+
+  <g filter="url(#shadow)">
+
+    <!-- Quill shaft / feather body — thick diagonal band -->
+    <!-- From top-right (780,180) sweeping to center-bottom (440,760) -->
+    <path d="
+      M 760 155
+      C 820 130, 870 175, 855 235
+      L 530 710
+      C 515 740, 488 755, 462 748
+      L 420 735
+      C 395 727, 385 700, 400 678
+      L 700 205
+      C 718 175, 740 165, 760 155 Z
+    " fill="white" opacity="0.97"/>
+
+    <!-- Feather vane splits — barb lines on the quill -->
+    <line x1="648" y1="218" x2="730" y2="178" stroke="#C7D2FE" stroke-width="6" stroke-linecap="round" opacity="0.5"/>
+    <line x1="600" y1="290" x2="690" y2="242" stroke="#C7D2FE" stroke-width="6" stroke-linecap="round" opacity="0.5"/>
+    <line x1="553" y1="360" x2="648" y2="308" stroke="#C7D2FE" stroke-width="6" stroke-linecap="round" opacity="0.45"/>
+    <line x1="507" y1="432" x2="607" y2="375" stroke="#C7D2FE" stroke-width="5" stroke-linecap="round" opacity="0.4"/>
+    <line x1="463" y1="502" x2="566" y2="443" stroke="#C7D2FE" stroke-width="5" stroke-linecap="round" opacity="0.35"/>
+
+    <!-- Nib tip — bright cyan accent -->
+    <path d="
+      M 462 748
+      L 380 830
+      C 368 842, 370 862, 384 870
+      L 395 875
+      C 408 880, 422 875, 430 864
+      L 530 710
+      L 462 748 Z
+    " fill="url(#nibGrad)"/>
+
+    <!-- Nib slit — dark line down the center of the nib -->
+    <line x1="462" y1="748" x2="410" y2="848"
+          stroke="#0E7490" stroke-width="4" stroke-linecap="round" opacity="0.7"/>
+
+    <!-- Ink drop at nib tip — gold accent dot -->
+    <circle cx="383" cy="870" r="22" fill="url(#goldGrad)" filter="url(#softGlow)"/>
+
+  </g>
+
+  <!-- ── T crossbar — the defining mark that anchors the letterform ── -->
+  <!-- Horizontal bar bridging the quill shaft, clean and bold -->
+  <rect x="210" y="268" width="568" height="88" rx="44"
+        fill="white" opacity="0.96" filter="url(#shadow)"/>
+
+  <!-- Left serif tab on crossbar — subtle weight -->
+  <rect x="210" y="268" width="88" height="88" rx="44" fill="white" opacity="0.96"/>
+  <rect x="690" y="268" width="88" height="88" rx="44" fill="white" opacity="0.96"/>
+
+  <!-- ── Blinking cursor — text-editor identity mark ── -->
+  <!-- Sits below the quill stem, suggesting active editing -->
+  <rect x="247" y="840" width="68" height="76" rx="8"
+        fill="url(#goldGrad)" opacity="0.92"/>
+
+</svg>
