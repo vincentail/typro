@@ -19,7 +19,7 @@ export function TitleBar() {
   const { wallpaperPath } = useUiStore()
   const t = useT()
 
-  const fileName = filePath ? filePath.split(/[\\/]/).pop() : 'Untitled'
+  const fileName = filePath ? filePath.split(/[\\/]/).pop() : t.untitled
   const activeTheme = getAllInstalled().find((t) => t.id === activeThemeId)
 
   return (

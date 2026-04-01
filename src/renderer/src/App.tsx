@@ -244,9 +244,9 @@ ${renderMarkdown(content)}
 
   // Window title
   useEffect(() => {
-    const name = filePath ? filePath.split('/').pop() : 'Untitled'
+    const name = filePath ? filePath.split('/').pop() : t.untitled
     document.title = `${isDirty ? '• ' : ''}${name} — Typro`
-  }, [filePath, isDirty])
+  }, [filePath, isDirty, t.untitled])
 
   return <AppShell />
 }

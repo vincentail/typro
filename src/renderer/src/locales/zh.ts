@@ -2,6 +2,7 @@ import type { T } from './en'
 
 export const zh: T = {
   // TitleBar
+  untitled: '未命名',
   toggleSidebar: '切换侧边栏 (⌘⇧L)',
   toggleToolbar: '切换工具栏 (⌘⇧T)',
   sourceMode: '源码模式',

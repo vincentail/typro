@@ -1,5 +1,6 @@
 export const en = {
   // TitleBar
+  untitled: 'Untitled',
   toggleSidebar: 'Toggle Sidebar (⌘⇧L)',
   toggleToolbar: 'Toggle Toolbar (⌘⇧T)',
   sourceMode: 'Source Mode',
