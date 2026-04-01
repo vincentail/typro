@@ -2,43 +2,75 @@ import { useEffect } from 'react'
 import { AppShell } from './components/layout/AppShell'
 import { useUiStore } from './store/uiStore'
 import { useEditorStore } from './store/editorStore'
+import { useThemeStore } from './store/themeStore'
+import { BUILTIN_THEMES, ALL_CURATED } from './lib/themes/registry'
 import { initShiki } from './lib/markdown/shiki'
 
 const typro = (window as unknown as { typro: Window['typro'] }).typro
 
+const BUILTIN_IDS = new Set(BUILTIN_THEMES.map((t) => t.id))
+
 export default function App() {
   const { theme, setTheme, setViewMode, toggleSidebar, toggleFocusMode, toggleToolbar } = useUiStore()
   const { content, filePath, isDirty, openFile, newFile, setDirty } = useEditorStore()
+  const { activeThemeId, customThemes, setActiveTheme } = useThemeStore()
 
-  // Apply theme to document
+  // Keep uiStore.theme in sync with themeStore.activeThemeId (single source of truth)
   useEffect(() => {
-    const themeMap: Record<string, string> = {
-      light: 'light',
-      dark: 'dark',
-      'solarized-light': 'solarized-light',
-      'solarized-dark': 'solarized-dark',
-      dracula: 'dracula'
+    setTheme(activeThemeId)
+  }, [activeThemeId, setTheme])
+
+  // Apply theme: builtin themes use global CSS; others get injected <style>
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+
+    const styleId = 'typro-custom-theme'
+    let styleEl = document.getElementById(styleId) as HTMLStyleElement | null
+
+    if (BUILTIN_IDS.has(theme)) {
+      // Remove any injected custom style
+      styleEl?.remove()
+      return
     }
-    document.documentElement.setAttribute('data-theme', themeMap[theme] || 'light')
-  }, [theme])
 
-  // Init shiki on mount
+    // Find theme definition (curated or custom)
+    const def =
+      ALL_CURATED.find((t) => t.id === theme) ||
+      customThemes.find((t) => t.id === theme)
+
+    if (!def) return
+
+    const cssVars = Object.entries(def.variables)
+      .map(([k, v]) => `  ${k}: ${v};`)
+      .join('\n')
+
+    const css = `[data-theme='${theme}'] {\n${cssVars}\n}`
+
+    if (!styleEl) {
+      styleEl = document.createElement('style')
+      styleEl.id = styleId
+      document.head.appendChild(styleEl)
+    }
+    styleEl.textContent = css
+  }, [theme, customThemes])
+
+  // Init shiki on mount — use isDark from theme definition when available
   useEffect(() => {
-    const shikiTheme =
-      theme === 'dark' || theme === 'solarized-dark' || theme === 'dracula'
-        ? 'github-dark'
-        : 'github-light'
+    const def =
+      ALL_CURATED.find((t) => t.id === theme) ||
+      customThemes.find((t) => t.id === theme)
+    const shikiTheme = def?.isDark ? 'github-dark' : 'github-light'
     initShiki(shikiTheme)
-  }, [theme])
+  }, [theme, customThemes])
 
   // Listen to native theme changes
   useEffect(() => {
     if (!typro?.theme?.onChanged) return
     const unsubscribe = typro.theme.onChanged((nativeTheme: string) => {
-      setTheme(nativeTheme === 'dark' ? 'dark' : 'light')
+      setActiveTheme(nativeTheme === 'dark' ? 'dark' : 'light')
     })
     return unsubscribe
-  }, [setTheme])
+  }, [setActiveTheme])
 
   // Menu event handlers
   useEffect(() => {

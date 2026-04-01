@@ -1,7 +1,8 @@
 import { create } from 'zustand'
 
 export type ViewMode = 'source' | 'split' | 'preview'
-export type ThemeName = 'light' | 'dark' | 'solarized-light' | 'solarized-dark' | 'dracula'
+// Now accepts any string — builtin IDs ('light', 'dark', …) or custom IDs
+export type ThemeName = string
 
 interface UiState {
   viewMode: ViewMode

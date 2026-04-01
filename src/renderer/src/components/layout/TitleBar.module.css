@@ -128,14 +128,27 @@
   color: var(--accent-color);
 }
 
-.themeSelect {
+.themeBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
   font-size: 12px;
-  padding: 3px 6px;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
   background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
   color: var(--text-secondary);
   cursor: pointer;
-  outline: none;
+  transition: border-color 0.15s, color 0.15s;
   -webkit-app-region: no-drag;
+  max-width: 130px;
+}
+.themeBtn:hover {
+  border-color: var(--accent-color);
+  color: var(--text-primary);
+}
+.themeName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
