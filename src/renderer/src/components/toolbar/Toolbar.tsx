@@ -26,7 +26,7 @@ const PRESET_HIGHLIGHTS = [
 ]
 
 export function Toolbar({ editorView }: Props) {
-  const { toolbarVisible, editorFontSize, lineHeight, setEditorFontSize, setLineHeight, focusMode } = useUiStore()
+  const { toolbarVisible, editorFontSize, previewFontSize, lineHeight, setEditorFontSize, setPreviewFontSize, setLineHeight, focusMode, viewMode } = useUiStore()
   const cursorPos = useEditorStore((s) => s.cursorPos)
   const t = useT()
 
@@ -234,10 +234,23 @@ export function Toolbar({ editorView }: Props) {
           <span className={styles.sep} />
 
           {/* ── Font size ── */}
-          <span className={styles.label}>{t.fontSize}</span>
-          <button className={styles.btn} title={t.decreaseFontSize} onClick={() => setEditorFontSize(editorFontSize - 1)}>−</button>
-          <span className={styles.sizeDisplay}>{editorFontSize}px</span>
-          <button className={styles.btn} title={t.increaseFontSize} onClick={() => setEditorFontSize(editorFontSize + 1)}>+</button>
+          {viewMode !== 'preview' && (
+            <>
+              <span className={styles.label}>{viewMode === 'split' ? t.editorLabel : t.fontSize}</span>
+              <button className={styles.btn} title={t.decreaseFontSize} onClick={() => setEditorFontSize(editorFontSize - 1)}>−</button>
+              <span className={styles.sizeDisplay}>{editorFontSize}px</span>
+              <button className={styles.btn} title={t.increaseFontSize} onClick={() => setEditorFontSize(editorFontSize + 1)}>+</button>
+            </>
+          )}
+          {viewMode !== 'source' && (
+            <>
+              {viewMode === 'split' && <span className={styles.sep} />}
+              <span className={styles.label}>{viewMode === 'split' ? t.previewLabel : t.fontSize}</span>
+              <button className={styles.btn} title={t.decreaseFontSize} onClick={() => setPreviewFontSize(previewFontSize - 1)}>−</button>
+              <span className={styles.sizeDisplay}>{previewFontSize}px</span>
+              <button className={styles.btn} title={t.increaseFontSize} onClick={() => setPreviewFontSize(previewFontSize + 1)}>+</button>
+            </>
+          )}
 
         </div>
       </div>

@@ -6,7 +6,7 @@ type Lang = 'zh' | 'en'
 
 const menuStrings = {
   en: {
-    file: 'File', new: 'New', open: 'Open...', save: 'Save', saveAs: 'Save As...',
+    file: 'File', new: 'New', open: 'Open...', openFolder: 'Open Folder...', save: 'Save', saveAs: 'Save As...',
     openRecent: 'Open Recent', noRecentFiles: 'No Recent Files', clearRecent: 'Clear Recent Files',
     exportHtml: 'Export as HTML', exportPdf: 'Export as PDF',
     edit: 'Edit', find: 'Find',
@@ -18,7 +18,7 @@ const menuStrings = {
     help: 'Help', learnMore: 'Learn More',
   },
   zh: {
-    file: '文件', new: '新建', open: '打开...', save: '保存', saveAs: '另存为...',
+    file: '文件', new: '新建', open: '打开...', openFolder: '打开目录...', save: '保存', saveAs: '另存为...',
     openRecent: '最近文件', noRecentFiles: '无最近文件', clearRecent: '清除最近文件',
     exportHtml: '导出为 HTML', exportPdf: '导出为 PDF',
     edit: '编辑', find: '查找',
@@ -93,6 +93,11 @@ export function setupMenu(win: BrowserWindow, lang: Lang = 'zh'): void {
           label: s.open,
           accelerator: 'CmdOrCtrl+O',
           click: () => win.webContents.send('menu:open')
+        },
+        {
+          label: s.openFolder,
+          accelerator: 'CmdOrCtrl+Shift+O',
+          click: () => win.webContents.send('menu:openDir')
         },
         {
           label: s.openRecent,

@@ -11,7 +11,7 @@
   padding: 32px 40px;
   color: var(--text-primary);
   font-family: var(--preview-font);
-  font-size: 15px;
+  font-size: 15px; /* default; overridden by inline style from store */
   line-height: 1.7;
 }
 

@@ -13,7 +13,13 @@ const typro = {
     exportHtml: (html: string, defaultName: string) =>
       ipcRenderer.invoke('file:exportHtml', html, defaultName),
     exportPdf: (html: string, defaultName: string) => ipcRenderer.invoke('file:exportPdf', html, defaultName),
-    openImage: () => ipcRenderer.invoke('file:openImage')
+    openImage: () => ipcRenderer.invoke('file:openImage'),
+    openDir: () => ipcRenderer.invoke('file:openDir'),
+    readDir: (dirPath: string) => ipcRenderer.invoke('file:readDir', dirPath),
+    createFile: (dirPath: string, name: string) => ipcRenderer.invoke('file:createFile', dirPath, name),
+    createDir: (dirPath: string, name: string) => ipcRenderer.invoke('file:createDir', dirPath, name),
+    rename: (oldPath: string, newName: string) => ipcRenderer.invoke('file:rename', oldPath, newName),
+    deleteItem: (path: string) => ipcRenderer.invoke('file:deleteItem', path)
   },
   settings: {
     get: () => ipcRenderer.invoke('settings:get'),
@@ -86,6 +92,10 @@ const typro = {
     },
     setLanguage: (lang: string) => ipcRenderer.send('menu:setLanguage', lang),
     updateRecent: (lang: string) => ipcRenderer.send('menu:updateRecent', lang),
+    onOpenDir: (callback: () => void) => {
+      ipcRenderer.on('menu:openDir', callback)
+      return () => ipcRenderer.removeListener('menu:openDir', callback)
+    },
     onOpenRecent: (callback: (filePath: string) => void) => {
       const handler = (_e: Electron.IpcRendererEvent, filePath: string) => callback(filePath)
       ipcRenderer.on('menu:openRecent', handler)

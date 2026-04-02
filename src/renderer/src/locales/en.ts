@@ -40,6 +40,14 @@ export const en = {
   fontSize: 'Font Size',
   decreaseFontSize: 'Decrease Font Size',
   increaseFontSize: 'Increase Font Size',
+  editorLabel: 'Editor',
+  previewLabel: 'Preview',
+
+  // AutoSave
+  autoSave: 'Auto Save',
+  autoSaveInterval: 'Interval',
+  autoSaveOn: 'On',
+  autoSaveOff: 'Off',
 
   // StatusBar
   fileType: 'File type',
@@ -54,6 +62,21 @@ export const en = {
   // Sidebar
   contents: 'Contents',
   files: 'Files',
+
+  // File tree
+  openFolder: 'Open Folder',
+  closeFolder: 'Close Folder',
+  noFolderOpen: 'No folder open.',
+  openFolderHint: 'Open a folder to browse files.',
+  newFile: 'New File',
+  newFolder: 'New Folder',
+  openFile: 'Open',
+  rename: 'Rename',
+  deleteItem: 'Delete',
+  confirmDelete: 'Delete this item? This cannot be undone.',
+  filenamePlaceholder: 'filename.md',
+  foldernamePlaceholder: 'folder name',
+  refreshFolder: 'Refresh',
 
   // RecentFiles
   noRecentFiles: 'No recent files.',

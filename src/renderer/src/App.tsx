@@ -24,7 +24,7 @@ const typro = (window as unknown as { typro: Window['typro'] }).typro
 const BUILTIN_IDS = new Set(BUILTIN_THEMES.map((t) => t.id))
 
 export default function App() {
-  const { theme, setTheme, setViewMode, toggleSidebar, toggleFocusMode, toggleToolbar, language, wallpaperPath, bgOpacity, customBgColors } = useUiStore()
+  const { theme, setTheme, setViewMode, toggleSidebar, toggleFocusMode, toggleToolbar, language, wallpaperPath, bgOpacity, customBgColors, setOpenDirPath, autoSave, autoSaveInterval } = useUiStore()
   const { content, filePath, isDirty, openFile, newFile, setDirty } = useEditorStore()
   const { activeThemeId, customThemes, setActiveTheme } = useThemeStore()
   const t = useT()
@@ -130,6 +130,10 @@ export default function App() {
       typro.menu.onViewMode((mode: string) => {
         setViewMode(mode as 'source' | 'split' | 'preview')
       }),
+      typro.menu.onOpenDir(async () => {
+        const dir = await typro.file.openDir()
+        if (dir) setOpenDirPath(dir)
+      }),
       typro.menu.onToggleSidebar(() => toggleSidebar()),
       typro.menu.onFocusMode(() => toggleFocusMode()),
       typro.menu.onToggleToolbar(() => toggleToolbar()),
@@ -190,7 +194,7 @@ ${renderMarkdown(content)}
     ]
 
     return () => unsubs.forEach((fn) => fn && fn())
-  }, [content, filePath, isDirty, openFile, newFile, setDirty, setViewMode, toggleSidebar, toggleFocusMode])
+  }, [content, filePath, isDirty, openFile, newFile, setDirty, setViewMode, toggleSidebar, toggleFocusMode, setOpenDirPath])
 
   // Wallpaper + background opacity + custom bg colors
   useEffect(() => {
@@ -250,6 +254,18 @@ ${renderMarkdown(content)}
       }
     `
   }, [wallpaperPath, bgOpacity, theme, customThemes, customBgColors])
+
+  // Auto-save
+  useEffect(() => {
+    if (!autoSave) return
+    const id = setInterval(async () => {
+      const { filePath, content, isDirty } = useEditorStore.getState()
+      if (!filePath || !isDirty) return
+      await typro.file.save(filePath, content)
+      useEditorStore.setState({ isDirty: false })
+    }, autoSaveInterval * 1000)
+    return () => clearInterval(id)
+  }, [autoSave, autoSaveInterval])
 
   // Sync language to Electron menu
   useEffect(() => {

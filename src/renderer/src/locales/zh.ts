@@ -42,6 +42,14 @@ export const zh: T = {
   fontSize: '字号',
   decreaseFontSize: '减小字号',
   increaseFontSize: '增大字号',
+  editorLabel: '编辑',
+  previewLabel: '预览',
+
+  // AutoSave
+  autoSave: '自动保存',
+  autoSaveInterval: '间隔',
+  autoSaveOn: '开',
+  autoSaveOff: '关',
 
   // StatusBar
   fileType: '文件类型',
@@ -56,6 +64,21 @@ export const zh: T = {
   // Sidebar
   contents: '目录',
   files: '文件',
+
+  // File tree
+  openFolder: '打开目录',
+  closeFolder: '关闭目录',
+  noFolderOpen: '未打开目录。',
+  openFolderHint: '打开一个目录以浏览文件。',
+  newFile: '新建文件',
+  newFolder: '新建文件夹',
+  openFile: '打开',
+  rename: '重命名',
+  deleteItem: '删除',
+  confirmDelete: '删除此项？操作不可撤销。',
+  filenamePlaceholder: '文件名.md',
+  foldernamePlaceholder: '文件夹名',
+  refreshFolder: '刷新',
 
   // RecentFiles
   noRecentFiles: '暂无最近文件。',

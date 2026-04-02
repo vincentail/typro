@@ -1,6 +1,6 @@
 import { ipcMain, dialog, BrowserWindow, app } from 'electron'
 import fs from 'fs/promises'
-import { join } from 'path'
+import { join, dirname } from 'path'
 import Store from 'electron-store'
 
 interface StoreSchema {
@@ -114,6 +114,90 @@ export function registerFileHandlers(): void {
       return { path: filePath }
     } catch {
       return null
+    }
+  })
+
+  ipcMain.handle('file:openDir', async () => {
+    const { filePaths, canceled } = await dialog.showOpenDialog(getWin(), {
+      title: 'Open Folder',
+      properties: ['openDirectory']
+    })
+    if (canceled || !filePaths[0]) return null
+    return filePaths[0]
+  })
+
+  ipcMain.handle('file:readDir', async (_event, dirPath: string) => {
+    interface FileNode {
+      name: string
+      path: string
+      type: 'file' | 'dir'
+      children?: FileNode[]
+    }
+
+    async function readDir(dir: string, depth: number): Promise<FileNode[]> {
+      if (depth > 8) return []
+      let entries
+      try {
+        entries = await fs.readdir(dir, { withFileTypes: true })
+      } catch {
+        return []
+      }
+      const nodes: FileNode[] = []
+      for (const entry of entries) {
+        if (entry.name.startsWith('.')) continue
+        const fullPath = join(dir, entry.name)
+        if (entry.isDirectory()) {
+          const children = await readDir(fullPath, depth + 1)
+          nodes.push({ name: entry.name, path: fullPath, type: 'dir', children })
+        } else {
+          nodes.push({ name: entry.name, path: fullPath, type: 'file' })
+        }
+      }
+      return nodes.sort((a, b) => {
+        if (a.type !== b.type) return a.type === 'dir' ? -1 : 1
+        return a.name.localeCompare(b.name)
+      })
+    }
+
+    return readDir(dirPath, 0)
+  })
+
+  ipcMain.handle('file:createFile', async (_event, dirPath: string, name: string) => {
+    const fullPath = join(dirPath, name)
+    try {
+      await fs.writeFile(fullPath, '', { flag: 'wx' })
+      return fullPath
+    } catch {
+      return null
+    }
+  })
+
+  ipcMain.handle('file:createDir', async (_event, dirPath: string, name: string) => {
+    const fullPath = join(dirPath, name)
+    try {
+      await fs.mkdir(fullPath)
+      return fullPath
+    } catch {
+      return null
+    }
+  })
+
+  ipcMain.handle('file:rename', async (_event, oldPath: string, newName: string) => {
+    const newPath = join(dirname(oldPath), newName)
+    try {
+      await fs.rename(oldPath, newPath)
+      return newPath
+    } catch {
+      return null
+    }
+  })
+
+  ipcMain.handle('file:deleteItem', async (_event, itemPath: string) => {
+    try {
+      await fs.rm(itemPath, { recursive: true, force: true })
+      return true
+    } catch {
+      return false
     }
   })
 

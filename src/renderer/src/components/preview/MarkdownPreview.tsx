@@ -9,7 +9,7 @@ interface Props {
 }
 
 export function MarkdownPreview({ content }: Props) {
-  const { theme } = useUiStore()
+  const { theme, previewFontSize } = useUiStore()
   const ref = useRef<HTMLDivElement>(null)
 
   const rendered = useMemo(() => {
@@ -50,6 +50,7 @@ export function MarkdownPreview({ content }: Props) {
       <div
         ref={ref}
         className={styles.preview}
+        style={{ fontSize: `${previewFontSize}px` }}
         dangerouslySetInnerHTML={{ __html: rendered }}
       />
     </div>
