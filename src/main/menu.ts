@@ -31,6 +31,13 @@ const menuStrings = {
   },
 }
 
+// Resolve the target window at call time so stale BrowserWindow references
+// captured in menu-item closures never cause "Object has been destroyed" crashes.
+function send(channel: string, ...args: unknown[]): void {
+  const w = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]
+  if (w && !w.isDestroyed()) w.webContents.send(channel, ...args)
+}
+
 function buildRecentSubmenu(
   win: BrowserWindow,
   s: typeof menuStrings['en'],
@@ -44,7 +51,7 @@ function buildRecentSubmenu(
     ...recent.map((filePath) => ({
       label: basename(filePath),
       sublabel: filePath,
-      click: () => win.webContents.send('menu:openRecent', filePath)
+      click: () => send('menu:openRecent', filePath)
     })),
     { type: 'separator' as const },
     {
@@ -52,7 +59,7 @@ function buildRecentSubmenu(
       click: () => {
         clearRecentFiles()
         setupMenu(win, lang)
-        win.webContents.send('menu:recentCleared')
+        send('menu:recentCleared')
       }
     }
   ]
@@ -87,17 +94,17 @@ export function setupMenu(win: BrowserWindow, lang: Lang = 'zh'): void {
         {
           label: s.new,
           accelerator: 'CmdOrCtrl+N',
-          click: () => win.webContents.send('menu:new')
+          click: () => send('menu:new')
         },
         {
           label: s.open,
           accelerator: 'CmdOrCtrl+O',
-          click: () => win.webContents.send('menu:open')
+          click: () => send('menu:open')
         },
         {
           label: s.openFolder,
           accelerator: 'CmdOrCtrl+Shift+O',
-          click: () => win.webContents.send('menu:openDir')
+          click: () => send('menu:openDir')
         },
         {
           label: s.openRecent,
@@ -107,21 +114,21 @@ export function setupMenu(win: BrowserWindow, lang: Lang = 'zh'): void {
         {
           label: s.save,
           accelerator: 'CmdOrCtrl+S',
-          click: () => win.webContents.send('menu:save')
+          click: () => send('menu:save')
         },
         {
           label: s.saveAs,
           accelerator: 'CmdOrCtrl+Shift+S',
-          click: () => win.webContents.send('menu:saveAs')
+          click: () => send('menu:saveAs')
         },
         { type: 'separator' },
         {
           label: s.exportHtml,
-          click: () => win.webContents.send('menu:exportHtml')
+          click: () => send('menu:exportHtml')
         },
         {
           label: s.exportPdf,
-          click: () => win.webContents.send('menu:exportPdf')
+          click: () => send('menu:exportPdf')
         },
         { type: 'separator' },
         isMac ? { role: 'close' as const } : { role: 'quit' as const }
@@ -141,7 +148,7 @@ export function setupMenu(win: BrowserWindow, lang: Lang = 'zh'): void {
         {
           label: s.find,
           accelerator: 'CmdOrCtrl+F',
-          click: () => win.webContents.send('menu:find')
+          click: () => send('menu:find')
         }
       ]
     },
@@ -151,33 +158,33 @@ export function setupMenu(win: BrowserWindow, lang: Lang = 'zh'): void {
         {
           label: s.sourceMode,
           accelerator: 'CmdOrCtrl+Alt+S',
-          click: () => win.webContents.send('menu:viewMode', 'source')
+          click: () => send('menu:viewMode', 'source')
         },
         {
           label: s.splitView,
           accelerator: 'CmdOrCtrl+Alt+V',
-          click: () => win.webContents.send('menu:viewMode', 'split')
+          click: () => send('menu:viewMode', 'split')
         },
         {
           label: s.previewMode,
           accelerator: 'CmdOrCtrl+Alt+P',
-          click: () => win.webContents.send('menu:viewMode', 'preview')
+          click: () => send('menu:viewMode', 'preview')
         },
         { type: 'separator' },
         {
           label: s.toggleSidebar,
           accelerator: 'CmdOrCtrl+Shift+L',
-          click: () => win.webContents.send('menu:toggleSidebar')
+          click: () => send('menu:toggleSidebar')
         },
         {
           label: s.toggleToolbar,
           accelerator: 'CmdOrCtrl+Shift+T',
-          click: () => win.webContents.send('menu:toggleToolbar')
+          click: () => send('menu:toggleToolbar')
         },
         {
           label: s.focusMode,
           accelerator: 'F8',
-          click: () => win.webContents.send('menu:focusMode')
+          click: () => send('menu:focusMode')
         },
         { type: 'separator' },
         { role: 'reload' as const },
@@ -196,49 +203,49 @@ export function setupMenu(win: BrowserWindow, lang: Lang = 'zh'): void {
         {
           label: s.bold,
           accelerator: 'CmdOrCtrl+B',
-          click: () => win.webContents.send('menu:format', 'bold')
+          click: () => send('menu:format', 'bold')
         },
         {
           label: s.italic,
           accelerator: 'CmdOrCtrl+I',
-          click: () => win.webContents.send('menu:format', 'italic')
+          click: () => send('menu:format', 'italic')
         },
         {
           label: s.strikethrough,
           accelerator: 'CmdOrCtrl+Shift+S',
-          click: () => win.webContents.send('menu:format', 'strikethrough')
+          click: () => send('menu:format', 'strikethrough')
         },
         {
           label: s.inlineCode,
           accelerator: 'CmdOrCtrl+`',
-          click: () => win.webContents.send('menu:format', 'code')
+          click: () => send('menu:format', 'code')
         },
         { type: 'separator' },
         {
           label: s.insertLink,
           accelerator: 'CmdOrCtrl+K',
-          click: () => win.webContents.send('menu:format', 'link')
+          click: () => send('menu:format', 'link')
         },
         {
           label: s.insertImage,
           accelerator: 'CmdOrCtrl+Shift+I',
-          click: () => win.webContents.send('menu:format', 'image')
+          click: () => send('menu:format', 'image')
         },
         { type: 'separator' },
         {
           label: s.heading1,
           accelerator: 'CmdOrCtrl+1',
-          click: () => win.webContents.send('menu:format', 'h1')
+          click: () => send('menu:format', 'h1')
         },
         {
           label: s.heading2,
           accelerator: 'CmdOrCtrl+2',
-          click: () => win.webContents.send('menu:format', 'h2')
+          click: () => send('menu:format', 'h2')
         },
         {
           label: s.heading3,
           accelerator: 'CmdOrCtrl+3',
-          click: () => win.webContents.send('menu:format', 'h3')
+          click: () => send('menu:format', 'h3')
         }
       ]
     },
