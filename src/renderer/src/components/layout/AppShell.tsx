@@ -10,6 +10,105 @@ import { useEditorStore } from '../../store/editorStore'
 import { EditorView } from '@codemirror/view'
 import styles from './AppShell.module.css'
 
+// Returns all [data-source-line] elements and their line numbers from a container
+function getMarkers(container: HTMLElement): { line: number; el: HTMLElement }[] {
+  const els = container.querySelectorAll<HTMLElement>('[data-source-line]')
+  const result: { line: number; el: HTMLElement }[] = []
+  els.forEach((el) => {
+    const line = parseInt(el.getAttribute('data-source-line') ?? '', 10)
+    if (!isNaN(line)) result.push({ line, el })
+  })
+  return result
+}
+
+function syncEditorToPreview(
+  editorView: EditorView,
+  previewEl: HTMLElement
+): void {
+  // Find the first visible line in the editor
+  const dom = editorView.dom
+  const editorRect = dom.getBoundingClientRect()
+  const topPos = editorView.posAtCoords({ x: editorRect.left, y: editorRect.top + 4 })
+  if (topPos == null) return
+  const topLine = editorView.state.doc.lineAt(topPos).number
+  const totalLines = editorView.state.doc.lines
+
+  const markers = getMarkers(previewEl)
+  if (markers.length === 0) return
+
+  // Find surrounding markers
+  let before = markers[0]
+  let after = markers[markers.length - 1]
+  for (const m of markers) {
+    if (m.line <= topLine) before = m
+    else { after = m; break }
+  }
+
+  // Interpolate scroll position
+  let targetScrollTop: number
+  if (before.line === after.line) {
+    const rect = before.el.getBoundingClientRect()
+    targetScrollTop = previewEl.scrollTop + rect.top - previewEl.getBoundingClientRect().top
+  } else {
+    const t = (topLine - before.line) / (after.line - before.line)
+    const beforeRect = before.el.getBoundingClientRect()
+    const afterRect = after.el.getBoundingClientRect()
+    const previewRect = previewEl.getBoundingClientRect()
+    const beforeTop = previewEl.scrollTop + beforeRect.top - previewRect.top
+    const afterTop = previewEl.scrollTop + afterRect.top - previewRect.top
+    targetScrollTop = beforeTop + t * (afterTop - beforeTop)
+    // If at end of editor, scroll preview to bottom
+    if (topLine >= totalLines - 2) {
+      targetScrollTop = previewEl.scrollHeight
+    }
+  }
+
+  previewEl.scrollTop = targetScrollTop
+}
+
+function syncPreviewToEditor(
+  previewEl: HTMLElement,
+  editorView: EditorView
+): void {
+  const markers = getMarkers(previewEl)
+  if (markers.length === 0) return
+
+  const previewRect = previewEl.getBoundingClientRect()
+  // Find first marker at or below the visible top
+  let topMarker = markers[0]
+  let bottomMarker = markers[markers.length - 1]
+  for (let i = 0; i < markers.length; i++) {
+    const rect = markers[i].el.getBoundingClientRect()
+    const relTop = rect.top - previewRect.top
+    if (relTop <= 4) {
+      topMarker = markers[i]
+    } else {
+      bottomMarker = markers[i]
+      break
+    }
+  }
+
+  let targetLine: number
+  if (topMarker.line === bottomMarker.line) {
+    targetLine = topMarker.line
+  } else {
+    const topRect = topMarker.el.getBoundingClientRect()
+    const botRect = bottomMarker.el.getBoundingClientRect()
+    const topRel = topRect.top - previewRect.top
+    const botRel = botRect.top - previewRect.top
+    const span = botRel - topRel
+    const t = span > 0 ? Math.max(0, Math.min(1, -topRel / span)) : 0
+    targetLine = Math.round(topMarker.line + t * (bottomMarker.line - topMarker.line))
+  }
+
+  const totalLines = editorView.state.doc.lines
+  targetLine = Math.max(1, Math.min(totalLines, targetLine))
+  const pos = editorView.state.doc.line(targetLine).from
+  editorView.dispatch({
+    effects: EditorView.scrollIntoView(pos, { y: 'start' })
+  })
+}
+
 export function AppShell() {
   const { viewMode, sidebarOpen, focusMode, editorFontSize, lineHeight } = useUiStore()
   const content = useEditorStore((s) => s.content)
@@ -17,6 +116,8 @@ export function AppShell() {
   const [splitRatio, setSplitRatio] = useState(0.5)
   const containerRef = useRef<HTMLDivElement>(null)
   const isDragging = useRef(false)
+  const previewScrollRef = useRef<HTMLDivElement>(null)
+  const syncingFrom = useRef<'editor' | 'preview' | null>(null)
 
   const onDividerMouseDown = (e: React.MouseEvent) => {
     isDragging.current = true
@@ -38,6 +139,41 @@ export function AppShell() {
       document.removeEventListener('mouseup', onMouseUp)
     }
   }, [])
+
+  // Editor → Preview scroll sync
+  useEffect(() => {
+    if (viewMode !== 'split' || !editorView || !previewScrollRef.current) return
+    const editorScrollEl = editorView.scrollDOM
+    const previewEl = previewScrollRef.current
+
+    const onEditorScroll = () => {
+      if (syncingFrom.current === 'preview') return
+      syncingFrom.current = 'editor'
+      syncEditorToPreview(editorView, previewEl)
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        syncingFrom.current = null
+      }))
+    }
+    editorScrollEl.addEventListener('scroll', onEditorScroll, { passive: true })
+    return () => editorScrollEl.removeEventListener('scroll', onEditorScroll)
+  }, [viewMode, editorView])
+
+  // Preview → Editor scroll sync
+  useEffect(() => {
+    if (viewMode !== 'split' || !editorView || !previewScrollRef.current) return
+    const previewEl = previewScrollRef.current
+
+    const onPreviewScroll = () => {
+      if (syncingFrom.current === 'editor') return
+      syncingFrom.current = 'preview'
+      syncPreviewToEditor(previewEl, editorView)
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        syncingFrom.current = null
+      }))
+    }
+    previewEl.addEventListener('scroll', onPreviewScroll, { passive: true })
+    return () => previewEl.removeEventListener('scroll', onPreviewScroll)
+  }, [viewMode, editorView])
 
   const showSidebar = sidebarOpen && !focusMode
 
@@ -74,7 +210,7 @@ export function AppShell() {
               </div>
               <div className={styles.divider} onMouseDown={onDividerMouseDown} />
               <div className={styles.previewPane} style={{ width: `${(1 - splitRatio) * 100}%` }}>
-                <MarkdownPreview content={content} />
+                <MarkdownPreview content={content} containerRef={previewScrollRef} />
               </div>
             </>
           )}

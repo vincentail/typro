@@ -6,9 +6,10 @@ import styles from './MarkdownPreview.module.css'
 
 interface Props {
   content: string
+  containerRef?: React.RefObject<HTMLDivElement>
 }
 
-export function MarkdownPreview({ content }: Props) {
+export function MarkdownPreview({ content, containerRef }: Props) {
   const { theme, previewFontSize } = useUiStore()
   const ref = useRef<HTMLDivElement>(null)
 
@@ -44,6 +45,7 @@ export function MarkdownPreview({ content }: Props) {
 
   return (
     <div
+      ref={containerRef}
       className={`${styles.previewContainer} ${styles[`theme-${theme}`] || ''}`}
       data-theme={theme}
     >

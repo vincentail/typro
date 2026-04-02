@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import CodeMirror from '@uiw/react-codemirror'
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown'
 import { languages } from '@codemirror/language-data'
@@ -66,14 +66,21 @@ export function MarkdownEditor({ onViewReady }: Props) {
   // Word count debounce
   const wcTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const handleChange = useCallback(
-    (value: string, viewUpdate: ViewUpdate) => {
-      setContent(value)
-
-      // Cursor position
-      const sel = viewUpdate.state.selection.main
-      const line = viewUpdate.state.doc.lineAt(sel.head)
+  // Track cursor on every selection change (click, arrow keys, etc.)
+  const cursorExtension = useMemo(
+    () => EditorView.updateListener.of((update) => {
+      if (!update.selectionSet) return
+      const sel = update.state.selection.main
+      const line = update.state.doc.lineAt(sel.head)
       setCursorPos({ line: line.number, col: sel.head - line.from + 1 })
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [] // setCursorPos is a stable zustand action
+  )
+
+  const handleChange = useCallback(
+    (value: string, _viewUpdate: ViewUpdate) => {
+      setContent(value)
 
       // Debounced word count
       if (wcTimerRef.current) clearTimeout(wcTimerRef.current)
@@ -84,7 +91,7 @@ export function MarkdownEditor({ onViewReady }: Props) {
         setWordCount({ words, chars, lines })
       }, 300)
     },
-    [setContent, setCursorPos, setWordCount]
+    [setContent, setWordCount]
   )
 
   const handleCreateEditor = useCallback(
@@ -148,6 +155,7 @@ export function MarkdownEditor({ onViewReady }: Props) {
   }, [])
 
   const extensions = [
+    cursorExtension,
     markdown({ base: markdownLanguage, codeLanguages: languages }),
     EditorView.lineWrapping,
     bracketMatching(),
