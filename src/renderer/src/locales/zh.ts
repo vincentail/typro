@@ -73,8 +73,16 @@ export const zh: T = {
   wallpaper: '壁纸',
   chooseImage: '选择图片',
   removeWallpaper: '移除',
-  bgOpacity: '背景透明度',
+  bgOpacity: '透明度',
   noWallpaper: '未设置壁纸',
+
+  // Background colors
+  bgColors: '背景色',
+  bgPrimary: '内容区',
+  bgSecondary: '工具栏',
+  bgSidebar: '侧边栏',
+  bgTitlebar: '标题栏',
+  resetBgColors: '重置',
 
   // ThemeManager
   dark: '深色',

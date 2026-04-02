@@ -71,8 +71,16 @@ export const en = {
   wallpaper: 'Wallpaper',
   chooseImage: 'Choose Image',
   removeWallpaper: 'Remove',
-  bgOpacity: 'Background Opacity',
+  bgOpacity: 'Opacity',
   noWallpaper: 'No wallpaper set',
+
+  // Background colors
+  bgColors: 'Background Colors',
+  bgPrimary: 'Content',
+  bgSecondary: 'Toolbar',
+  bgSidebar: 'Sidebar',
+  bgTitlebar: 'Titlebar',
+  resetBgColors: 'Reset',
 
   // ThemeManager
   dark: 'Dark',

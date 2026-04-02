@@ -2,7 +2,7 @@
   position: absolute;
   top: calc(var(--titlebar-height) + 4px);
   right: 8px;
-  width: 220px;
+  width: 230px;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -11,12 +11,49 @@
   z-index: 1000;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
+/* ── Section header ── */
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sectionTitle {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.resetBtn {
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.resetBtn:hover {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: 2px 0;
+}
+
+/* ── Wallpaper preview ── */
 .preview {
   width: 100%;
-  height: 110px;
+  height: 100px;
   border-radius: 6px;
   overflow: hidden;
   border: 1px solid var(--border-color);
@@ -40,6 +77,7 @@
   padding: 8px;
 }
 
+/* ── Buttons ── */
 .actions {
   display: flex;
   gap: 6px;
@@ -56,17 +94,10 @@
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
 }
+.btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
+.btnRemove:hover { border-color: #ef4444; color: #ef4444; }
 
-.btn:hover {
-  border-color: var(--accent-color);
-  color: var(--accent-color);
-}
-
-.btnRemove:hover {
-  border-color: #ef4444;
-  color: #ef4444;
-}
-
+/* ── Opacity slider ── */
 .opacityRow {
   display: flex;
   align-items: center;
@@ -93,4 +124,51 @@
   width: 30px;
   text-align: right;
   flex-shrink: 0;
+}
+
+/* ── Color list ── */
+.colorList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.colorRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.colorLabel {
+  font-size: 12px;
+  color: var(--text-secondary);
+  transition: color 0.15s;
+}
+
+.colorLabelActive {
+  color: var(--accent-color);
+}
+
+.colorSwatch {
+  width: 28px;
+  height: 20px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  display: block;
+  overflow: hidden;
+  transition: border-color 0.15s;
+  flex-shrink: 0;
+}
+.colorSwatch:hover {
+  border-color: var(--accent-color);
+}
+
+.colorInput {
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  border: none;
+  padding: 0;
 }

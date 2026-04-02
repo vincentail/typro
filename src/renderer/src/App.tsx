@@ -24,7 +24,7 @@ const typro = (window as unknown as { typro: Window['typro'] }).typro
 const BUILTIN_IDS = new Set(BUILTIN_THEMES.map((t) => t.id))
 
 export default function App() {
-  const { theme, setTheme, setViewMode, toggleSidebar, toggleFocusMode, toggleToolbar, language, wallpaperPath, bgOpacity } = useUiStore()
+  const { theme, setTheme, setViewMode, toggleSidebar, toggleFocusMode, toggleToolbar, language, wallpaperPath, bgOpacity, customBgColors } = useUiStore()
   const { content, filePath, isDirty, openFile, newFile, setDirty } = useEditorStore()
   const { activeThemeId, customThemes, setActiveTheme } = useThemeStore()
   const t = useT()
@@ -192,21 +192,22 @@ ${renderMarkdown(content)}
     return () => unsubs.forEach((fn) => fn && fn())
   }, [content, filePath, isDirty, openFile, newFile, setDirty, setViewMode, toggleSidebar, toggleFocusMode])
 
-  // Wallpaper + background opacity
+  // Wallpaper + background opacity + custom bg colors
   useEffect(() => {
     const styleId = 'typro-wallpaper'
     let styleEl = document.getElementById(styleId) as HTMLStyleElement | null
-
-    if (!wallpaperPath) {
-      styleEl?.remove()
-      return
-    }
 
     const themeDef =
       ALL_CURATED.find((t) => t.id === theme) ||
       customThemes.find((t) => t.id === theme)
 
-    const url = toTyproUrl(wallpaperPath)
+    const hasWallpaper = !!wallpaperPath
+    const hasCustomColors = Object.keys(customBgColors).length > 0
+
+    if (!hasWallpaper && !hasCustomColors) {
+      styleEl?.remove()
+      return
+    }
 
     if (!styleEl) {
       styleEl = document.createElement('style')
@@ -214,27 +215,41 @@ ${renderMarkdown(content)}
       document.head.appendChild(styleEl)
     }
 
-    const bgOverrides = themeDef ? `
-      :root, [data-theme='${theme}'] {
-        --bg-primary: ${hexToRgba(themeDef.variables['--bg-primary'], bgOpacity)};
-        --bg-secondary: ${hexToRgba(themeDef.variables['--bg-secondary'], bgOpacity)};
-        --bg-sidebar: ${hexToRgba(themeDef.variables['--bg-sidebar'], bgOpacity)};
-        --bg-titlebar: ${hexToRgba(themeDef.variables['--bg-titlebar'], bgOpacity)};
-      }` : ''
+    // Effective bg colors: custom overrides > theme definition
+    const vars = themeDef?.variables
+    const effective = {
+      '--bg-primary':   customBgColors['--bg-primary']   || vars?.['--bg-primary']   || '#ffffff',
+      '--bg-secondary': customBgColors['--bg-secondary'] || vars?.['--bg-secondary'] || '#f8f9fa',
+      '--bg-sidebar':   customBgColors['--bg-sidebar']   || vars?.['--bg-sidebar']   || '#f0f0f0',
+      '--bg-titlebar':  customBgColors['--bg-titlebar']  || vars?.['--bg-titlebar']  || '#f5f5f5',
+    }
 
-    styleEl.textContent = `
+    const bgOverrides = hasWallpaper
+      ? `  --bg-primary:   ${hexToRgba(effective['--bg-primary'],   bgOpacity)};
+          --bg-secondary: ${hexToRgba(effective['--bg-secondary'], bgOpacity)};
+          --bg-sidebar:   ${hexToRgba(effective['--bg-sidebar'],   bgOpacity)};
+          --bg-titlebar:  ${hexToRgba(effective['--bg-titlebar'],  bgOpacity)};`
+      : `  --bg-primary:   ${effective['--bg-primary']};
+          --bg-secondary: ${effective['--bg-secondary']};
+          --bg-sidebar:   ${effective['--bg-sidebar']};
+          --bg-titlebar:  ${effective['--bg-titlebar']};`
+
+    const wallpaperCss = hasWallpaper ? `
       html {
-        background-image: url("${url}");
+        background-image: url("${toTyproUrl(wallpaperPath)}");
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
       }
-      html, body, #root {
-        background-color: transparent !important;
+      html, body, #root { background-color: transparent !important; }` : ''
+
+    styleEl.textContent = `
+      ${wallpaperCss}
+      :root, [data-theme='${theme}'] {
+        ${bgOverrides}
       }
-      ${bgOverrides}
     `
-  }, [wallpaperPath, bgOpacity, theme, customThemes])
+  }, [wallpaperPath, bgOpacity, theme, customThemes, customBgColors])
 
   // Sync language to Electron menu
   useEffect(() => {
