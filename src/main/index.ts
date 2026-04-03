@@ -4,6 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { registerFileHandlers } from './ipc/file'
 import { registerWindowHandlers } from './ipc/window'
 import { registerThemeHandlers } from './ipc/theme'
+import { registerPluginHandlers } from './ipc/plugin'
 import { setupMenu, setupMenuIpc } from './menu'
 import log from 'electron-log'
 import fs from 'fs'
@@ -138,6 +139,7 @@ app.whenReady().then(() => {
   registerFileHandlers()
   registerWindowHandlers()
   registerThemeHandlers()
+  registerPluginHandlers()
 
   const win = createWindow()
   setupMenu(win)

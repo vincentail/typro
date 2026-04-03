@@ -54,8 +54,26 @@ declare global {
         onRecentCleared: (callback: () => void) => () => void
       }
     }
+      plugin: {
+        list: () => Promise<PluginMeta[]>
+        install: () => Promise<PluginMeta | null>
+        uninstall: (id: string) => Promise<boolean>
+        setEnabled: (id: string, enabled: boolean) => Promise<boolean>
+        getCode: (id: string) => Promise<string | null>
+      }
+    }
     os: {
       onOpenFile: (callback: (filePath: string) => void) => () => void
     }
+  }
+
+  interface PluginMeta {
+    id: string
+    name: string
+    version: string
+    description: string
+    enabled: boolean
+    fileName: string
+    installedAt: string
   }
 }

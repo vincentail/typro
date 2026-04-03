@@ -125,4 +125,21 @@ export const zh: T = {
   loadFromFile: '从文件加载…',
   importTheme: '导入主题',
   requiredFields: '必填字段',
+
+  // Plugins
+  plugins: '插件',
+  pluginInstall: '安装插件…',
+  pluginInstalling: '安装中…',
+  pluginUninstall: '卸载',
+  pluginEnable: '启用',
+  pluginDisable: '禁用',
+  pluginEnabled: '已启用',
+  pluginDisabled: '已禁用',
+  pluginNoPlugins: '未安装任何插件',
+  pluginInstallHint: '点击"安装插件"加载 .js 插件文件。',
+  pluginReloadHint: '重启以应用更改',
+  pluginReload: '重启',
+  pluginConfirmUninstall: '卸载插件"{name}"？',
+  pluginSampleTooltip: '查看示例插件',
+  pluginSampleLabel: '示例插件（保存为 .js 文件）',
 }

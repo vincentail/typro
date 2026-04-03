@@ -123,6 +123,23 @@ export const en = {
   loadFromFile: 'Load from file…',
   importTheme: 'Import Theme',
   requiredFields: 'Required fields',
+
+  // Plugins
+  plugins: 'Plugins',
+  pluginInstall: 'Install Plugin…',
+  pluginInstalling: 'Installing…',
+  pluginUninstall: 'Uninstall',
+  pluginEnable: 'Enable',
+  pluginDisable: 'Disable',
+  pluginEnabled: 'Enabled',
+  pluginDisabled: 'Disabled',
+  pluginNoPlugins: 'No plugins installed',
+  pluginInstallHint: 'Click "Install Plugin" to load a .js plugin file.',
+  pluginReloadHint: 'Reload to apply changes',
+  pluginReload: 'Reload',
+  pluginConfirmUninstall: 'Uninstall plugin "{name}"?',
+  pluginSampleTooltip: 'Show example plugin',
+  pluginSampleLabel: 'Example plugin (save as .js)',
 } as const
 
 export type T = typeof en

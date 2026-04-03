@@ -313,6 +313,11 @@ ${renderMarkdown(content)}
     return () => clearInterval(id)
   }, [autoSave, autoSaveInterval])
 
+  // Load plugins once on mount
+  useEffect(() => {
+    import('./lib/pluginLoader').then(({ initPlugins }) => initPlugins())
+  }, [])
+
   // Developer mode — open/close DevTools
   useEffect(() => {
     if (devMode) typro?.window?.openDevTools?.()

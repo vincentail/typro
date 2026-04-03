@@ -122,6 +122,13 @@ const typro = {
       return () => ipcRenderer.removeListener('menu:exportLog', callback)
     }
   },
+  plugin: {
+    list: () => ipcRenderer.invoke('plugin:list'),
+    install: () => ipcRenderer.invoke('plugin:install'),
+    uninstall: (id: string) => ipcRenderer.invoke('plugin:uninstall', id),
+    setEnabled: (id: string, enabled: boolean) => ipcRenderer.invoke('plugin:setEnabled', id, enabled),
+    getCode: (id: string) => ipcRenderer.invoke('plugin:getCode', id)
+  },
   os: {
     onOpenFile: (callback: (filePath: string) => void) => {
       const handler = (_e: Electron.IpcRendererEvent, filePath: string) => callback(filePath)

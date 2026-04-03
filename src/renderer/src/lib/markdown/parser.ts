@@ -164,6 +164,11 @@ export function extractToc(content: string): TocItem[] {
 
 export { md }
 
+/** Register an external markdown-it plugin at runtime (e.g. from the plugin system) */
+export function registerMarkdownPlugin(fn: (instance: MarkdownIt) => void): void {
+  fn(md)
+}
+
 export function renderMarkdown(content: string): string {
   return md.render(content)
 }

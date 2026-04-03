@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import DOMPurify from 'dompurify'
 import { renderMarkdown } from '../../lib/markdown/parser'
 import { useUiStore } from '../../store/uiStore'
+import { usePluginStore } from '../../store/pluginStore'
 import styles from './MarkdownPreview.module.css'
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
 
 export function MarkdownPreview({ content, containerRef }: Props) {
   const { theme, previewFontSize } = useUiStore()
+  const pluginRevision = usePluginStore((s) => s.revision)
   const ref = useRef<HTMLDivElement>(null)
 
   const rendered = useMemo(() => {
@@ -20,7 +22,8 @@ export function MarkdownPreview({ content, containerRef }: Props) {
       ADD_ATTR: ['xmlns', 'mathvariant', 'class', 'style', 'data-source-line', 'aria-hidden',
                  'aria-label', 'href', 'id', 'type', 'checked', 'disabled']
     })
-  }, [content])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [content, pluginRevision])
 
   // Handle external links
   useEffect(() => {

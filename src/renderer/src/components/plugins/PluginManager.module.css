@@ -1,0 +1,234 @@
+.manager {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────────── */
+.header {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.installBtn {
+  flex: 1;
+  padding: 5px 10px;
+  background: var(--accent-color);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: opacity 0.15s;
+}
+
+.installBtn:disabled { opacity: 0.55; cursor: default; }
+.installBtn:hover:not(:disabled) { opacity: 0.88; }
+
+.helpBtn {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 0.1s, color 0.1s;
+}
+.helpBtn:hover { background: var(--bg-secondary); color: var(--text-primary); }
+
+/* ── Sample plugin ───────────────────────────────────────────────────────────── */
+.sampleBox {
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.sampleLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 5px 8px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sampleCode {
+  font-family: var(--editor-font, monospace);
+  font-size: 10px;
+  line-height: 1.5;
+  padding: 8px;
+  margin: 0;
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  overflow-x: auto;
+  white-space: pre;
+}
+
+/* ── Reload banner ───────────────────────────────────────────────────────────── */
+.reloadBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px;
+  background: #f59e0b22;
+  border: 1px solid #f59e0b55;
+  border-radius: 6px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.reloadBtn {
+  padding: 3px 8px;
+  border: 1px solid #f59e0b;
+  border-radius: 4px;
+  background: transparent;
+  color: #f59e0b;
+  font-size: 11px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.1s;
+}
+.reloadBtn:hover { background: #f59e0b22; }
+
+/* ── Empty state ─────────────────────────────────────────────────────────────── */
+.empty {
+  padding: 24px 8px;
+  text-align: center;
+}
+
+.emptyTitle {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.emptyHint {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ── Plugin list ─────────────────────────────────────────────────────────────── */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.item {
+  padding: 9px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 7px;
+  background: var(--bg-primary);
+  transition: opacity 0.15s;
+}
+
+.itemDisabled { opacity: 0.5; }
+
+.itemHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.itemName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.itemVersion {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.itemDesc {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.itemActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+
+/* Toggle switch */
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle input { display: none; }
+
+.toggleTrack {
+  width: 28px;
+  height: 16px;
+  border-radius: 8px;
+  background: var(--border-color);
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.toggle input:checked + .toggleTrack { background: #22c55e; }
+
+.toggleThumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.toggle input:checked + .toggleTrack .toggleThumb {
+  transform: translateX(12px);
+}
+
+.toggleLabel {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.uninstallBtn {
+  font-size: 11px;
+  padding: 2px 7px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.1s, color 0.1s;
+}
+
+.uninstallBtn:hover {
+  border-color: #ef4444;
+  color: #ef4444;
+}
