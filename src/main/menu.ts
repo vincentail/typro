@@ -12,6 +12,7 @@ const menuStrings = {
     edit: 'Edit', find: 'Find',
     view: 'View', sourceMode: 'Source Mode', splitView: 'Split View', previewMode: 'Preview Mode',
     toggleSidebar: 'Toggle Sidebar', toggleToolbar: 'Toggle Toolbar', focusMode: 'Focus Mode',
+    devMode: 'Developer Mode',
     format: 'Format', bold: 'Bold', italic: 'Italic', strikethrough: 'Strikethrough',
     inlineCode: 'Inline Code', insertLink: 'Insert Link', insertImage: 'Insert Image',
     heading1: 'Heading 1', heading2: 'Heading 2', heading3: 'Heading 3',
@@ -24,6 +25,7 @@ const menuStrings = {
     edit: '编辑', find: '查找',
     view: '视图', sourceMode: '源码模式', splitView: '分栏视图', previewMode: '预览模式',
     toggleSidebar: '切换侧边栏', toggleToolbar: '切换工具栏', focusMode: '专注模式',
+    devMode: '开发者模式',
     format: '格式', bold: '粗体', italic: '斜体', strikethrough: '删除线',
     inlineCode: '行内代码', insertLink: '插入链接', insertImage: '插入图片',
     heading1: '标题 1', heading2: '标题 2', heading3: '标题 3',
@@ -190,6 +192,12 @@ export function setupMenu(win: BrowserWindow, lang: Lang = 'zh'): void {
           label: s.focusMode,
           accelerator: 'F8',
           click: () => send('menu:focusMode')
+        },
+        { type: 'separator' },
+        {
+          label: s.devMode,
+          accelerator: 'F12',
+          click: () => send('menu:toggleDevMode')
         },
         { type: 'separator' },
         { role: 'reload' as const },

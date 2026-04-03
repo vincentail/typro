@@ -27,6 +27,8 @@ declare global {
         maximize: () => void
         close: () => void
         isMaximized: () => Promise<boolean>
+        openDevTools: () => void
+        closeDevTools: () => void
       }
       menu: {
         onNew: (callback: () => void) => () => void
@@ -42,6 +44,7 @@ declare global {
         onExportPdf: (callback: () => void) => () => void
         onToggleToolbar: (callback: () => void) => () => void
         onPrint: (callback: () => void) => () => void
+        onToggleDevMode: (callback: () => void) => () => void
         setLanguage: (lang: string) => void
         updateRecent: (lang: string) => void
         onOpenDir: (callback: () => void) => () => void

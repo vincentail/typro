@@ -39,6 +39,8 @@ interface UiState {
   setBgOpacity: (opacity: number) => void
   setCustomBgColor: (key: '--bg-primary' | '--bg-secondary' | '--bg-sidebar' | '--bg-titlebar', value: string) => void
   resetCustomBgColors: () => void
+  devMode: boolean
+  toggleDevMode: () => void
 }
 
 export const useUiStore = create<UiState>()(
@@ -76,6 +78,8 @@ export const useUiStore = create<UiState>()(
       setBgOpacity: (bgOpacity) => set({ bgOpacity: Math.min(1, Math.max(0, bgOpacity)) }),
       setCustomBgColor: (key, value) => set((s) => ({ customBgColors: { ...s.customBgColors, [key]: value } })),
       resetCustomBgColors: () => set({ customBgColors: {} }),
+      devMode: false,
+      toggleDevMode: () => set((s) => ({ devMode: !s.devMode })),
     }),
     {
       name: 'typro-ui',

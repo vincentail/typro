@@ -24,7 +24,7 @@ const typro = (window as unknown as { typro: Window['typro'] }).typro
 const BUILTIN_IDS = new Set(BUILTIN_THEMES.map((t) => t.id))
 
 export default function App() {
-  const { theme, setTheme, setViewMode, toggleSidebar, toggleFocusMode, toggleToolbar, language, wallpaperPath, bgOpacity, customBgColors, setOpenDirPath, autoSave, autoSaveInterval } = useUiStore()
+  const { theme, setTheme, setViewMode, toggleSidebar, toggleFocusMode, toggleToolbar, language, wallpaperPath, bgOpacity, customBgColors, setOpenDirPath, autoSave, autoSaveInterval, devMode, toggleDevMode } = useUiStore()
   const { content, filePath, isDirty, openFile, newFile, setDirty } = useEditorStore()
   const { activeThemeId, customThemes, setActiveTheme } = useThemeStore()
   const t = useT()
@@ -192,6 +192,10 @@ ${renderMarkdown(content)}
         await typro.file.exportPdf(html, filePath || 'document.md')
       }),
 
+      typro.menu.onToggleDevMode(() => {
+        toggleDevMode()
+      }),
+
       typro.menu.onPrint(async () => {
         const { renderMarkdown } = await import('./lib/markdown/parser')
         const { getPdfPreviewCss } = await import('./lib/themes/pdf-styles')
@@ -303,6 +307,12 @@ ${renderMarkdown(content)}
     }, autoSaveInterval * 1000)
     return () => clearInterval(id)
   }, [autoSave, autoSaveInterval])
+
+  // Developer mode — open/close DevTools
+  useEffect(() => {
+    if (devMode) typro?.window?.openDevTools?.()
+    else typro?.window?.closeDevTools?.()
+  }, [devMode])
 
   // Sync language to Electron menu
   useEffect(() => {

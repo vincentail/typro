@@ -219,24 +219,27 @@ export function registerFileHandlers(): void {
     await fs.writeFile(tmpPath, html, 'utf-8')
 
     const printWin = new BrowserWindow({
+      width: 900,
+      height: 700,
       show: false,
+      title: 'Print Preview',
       webPreferences: { nodeIntegration: false, contextIsolation: true }
     })
 
     try {
       await printWin.loadFile(tmpPath)
+      // Wait for web fonts / CDN stylesheets to load
       await new Promise((r) => setTimeout(r, 800))
-      await new Promise<void>((resolve, reject) => {
-        printWin.webContents.print({ silent: false, printBackground: true }, (success, reason) => {
-          if (!success && reason !== 'cancelled') reject(new Error(reason))
-          else resolve()
-        })
+      // Must show the window so macOS can attach the print sheet to it
+      printWin.show()
+      await new Promise<void>((resolve) => {
+        printWin.webContents.print({ silent: false, printBackground: true }, () => resolve())
       })
       return true
     } catch {
       return false
     } finally {
-      printWin.destroy()
+      if (!printWin.isDestroyed()) printWin.destroy()
       fs.unlink(tmpPath).catch(() => {})
     }
   })

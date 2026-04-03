@@ -15,7 +15,7 @@ const INTERVAL_OPTIONS = [
 
 export function StatusBar() {
   const { wordCount, cursorPos, filePath } = useEditorStore()
-  const { focusMode, autoSave, autoSaveInterval, setAutoSave, setAutoSaveInterval } = useUiStore()
+  const { focusMode, autoSave, autoSaveInterval, setAutoSave, setAutoSaveInterval, devMode } = useUiStore()
   const t = useT()
   const [popoverOpen, setPopoverOpen] = useState(false)
   const groupRef = useRef<HTMLDivElement>(null)
@@ -92,6 +92,12 @@ export function StatusBar() {
       </div>
 
       <div className={styles.right}>
+        {devMode && (
+          <>
+            <span className={styles.devBadge}>DEV</span>
+            <span className={styles.sep} />
+          </>
+        )}
         <span className={styles.item} title={t.wordCountLabel}>
           {wordCount.words} {t.words}
         </span>

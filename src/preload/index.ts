@@ -38,7 +38,9 @@ const typro = {
     minimize: () => ipcRenderer.send('window:minimize'),
     maximize: () => ipcRenderer.send('window:maximize'),
     close: () => ipcRenderer.send('window:close'),
-    isMaximized: () => ipcRenderer.invoke('window:isMaximized')
+    isMaximized: () => ipcRenderer.invoke('window:isMaximized'),
+    openDevTools: () => ipcRenderer.send('window:openDevTools'),
+    closeDevTools: () => ipcRenderer.send('window:closeDevTools')
   },
   menu: {
     onNew: (callback: () => void) => {
@@ -109,6 +111,10 @@ const typro = {
     onPrint: (callback: () => void) => {
       ipcRenderer.on('menu:print', callback)
       return () => ipcRenderer.removeListener('menu:print', callback)
+    },
+    onToggleDevMode: (callback: () => void) => {
+      ipcRenderer.on('menu:toggleDevMode', callback)
+      return () => ipcRenderer.removeListener('menu:toggleDevMode', callback)
     }
   },
   os: {

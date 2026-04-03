@@ -16,4 +16,10 @@ export function registerWindowHandlers(): void {
   ipcMain.handle('window:isMaximized', (event) => {
     return BrowserWindow.fromWebContents(event.sender)?.isMaximized() ?? false
   })
+  ipcMain.on('window:openDevTools', (event) => {
+    BrowserWindow.fromWebContents(event.sender)?.webContents.openDevTools()
+  })
+  ipcMain.on('window:closeDevTools', (event) => {
+    BrowserWindow.fromWebContents(event.sender)?.webContents.closeDevTools()
+  })
 }
