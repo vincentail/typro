@@ -12,6 +12,7 @@ declare global {
         clearRecent: () => Promise<void>
         exportHtml: (html: string, defaultName: string) => Promise<{ path: string } | null>
         exportPdf: (html: string, defaultName: string) => Promise<{ path: string } | null>
+        print: (html: string) => Promise<boolean>
       }
       settings: {
         get: () => Promise<Record<string, unknown>>
@@ -39,7 +40,13 @@ declare global {
         onFormat: (callback: (format: string) => void) => () => void
         onExportHtml: (callback: () => void) => () => void
         onExportPdf: (callback: () => void) => () => void
-      onToggleToolbar: (callback: () => void) => () => void
+        onToggleToolbar: (callback: () => void) => () => void
+        onPrint: (callback: () => void) => () => void
+        setLanguage: (lang: string) => void
+        updateRecent: (lang: string) => void
+        onOpenDir: (callback: () => void) => () => void
+        onOpenRecent: (callback: (filePath: string) => void) => () => void
+        onRecentCleared: (callback: () => void) => () => void
       }
     }
     os: {

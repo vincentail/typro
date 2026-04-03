@@ -8,7 +8,7 @@ const menuStrings = {
   en: {
     file: 'File', new: 'New', open: 'Open...', openFolder: 'Open Folder...', save: 'Save', saveAs: 'Save As...',
     openRecent: 'Open Recent', noRecentFiles: 'No Recent Files', clearRecent: 'Clear Recent Files',
-    exportHtml: 'Export as HTML', exportPdf: 'Export as PDF',
+    exportHtml: 'Export as HTML', exportPdf: 'Export as PDF', print: 'Print...',
     edit: 'Edit', find: 'Find',
     view: 'View', sourceMode: 'Source Mode', splitView: 'Split View', previewMode: 'Preview Mode',
     toggleSidebar: 'Toggle Sidebar', toggleToolbar: 'Toggle Toolbar', focusMode: 'Focus Mode',
@@ -20,7 +20,7 @@ const menuStrings = {
   zh: {
     file: '文件', new: '新建', open: '打开...', openFolder: '打开目录...', save: '保存', saveAs: '另存为...',
     openRecent: '最近文件', noRecentFiles: '无最近文件', clearRecent: '清除最近文件',
-    exportHtml: '导出为 HTML', exportPdf: '导出为 PDF',
+    exportHtml: '导出为 HTML', exportPdf: '导出为 PDF', print: '打印...',
     edit: '编辑', find: '查找',
     view: '视图', sourceMode: '源码模式', splitView: '分栏视图', previewMode: '预览模式',
     toggleSidebar: '切换侧边栏', toggleToolbar: '切换工具栏', focusMode: '专注模式',
@@ -129,6 +129,11 @@ export function setupMenu(win: BrowserWindow, lang: Lang = 'zh'): void {
         {
           label: s.exportPdf,
           click: () => send('menu:exportPdf')
+        },
+        {
+          label: s.print,
+          accelerator: 'CmdOrCtrl+P',
+          click: () => send('menu:print')
         },
         { type: 'separator' },
         isMac ? { role: 'close' as const } : { role: 'quit' as const }

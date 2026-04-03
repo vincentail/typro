@@ -13,6 +13,7 @@ const typro = {
     exportHtml: (html: string, defaultName: string) =>
       ipcRenderer.invoke('file:exportHtml', html, defaultName),
     exportPdf: (html: string, defaultName: string) => ipcRenderer.invoke('file:exportPdf', html, defaultName),
+    print: (html: string) => ipcRenderer.invoke('file:print', html),
     openImage: () => ipcRenderer.invoke('file:openImage'),
     openDir: () => ipcRenderer.invoke('file:openDir'),
     readDir: (dirPath: string) => ipcRenderer.invoke('file:readDir', dirPath),
@@ -104,6 +105,10 @@ const typro = {
     onRecentCleared: (callback: () => void) => {
       ipcRenderer.on('menu:recentCleared', callback)
       return () => ipcRenderer.removeListener('menu:recentCleared', callback)
+    },
+    onPrint: (callback: () => void) => {
+      ipcRenderer.on('menu:print', callback)
+      return () => ipcRenderer.removeListener('menu:print', callback)
     }
   },
   os: {

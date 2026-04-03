@@ -214,6 +214,33 @@ export function registerFileHandlers(): void {
     return filePaths[0]
   })
 
+  ipcMain.handle('file:print', async (_event, html: string) => {
+    const tmpPath = join(app.getPath('temp'), `typro-print-${Date.now()}.html`)
+    await fs.writeFile(tmpPath, html, 'utf-8')
+
+    const printWin = new BrowserWindow({
+      show: false,
+      webPreferences: { nodeIntegration: false, contextIsolation: true }
+    })
+
+    try {
+      await printWin.loadFile(tmpPath)
+      await new Promise((r) => setTimeout(r, 800))
+      await new Promise<void>((resolve, reject) => {
+        printWin.webContents.print({ silent: false, printBackground: true }, (success, reason) => {
+          if (!success && reason !== 'cancelled') reject(new Error(reason))
+          else resolve()
+        })
+      })
+      return true
+    } catch {
+      return false
+    } finally {
+      printWin.destroy()
+      fs.unlink(tmpPath).catch(() => {})
+    }
+  })
+
   ipcMain.handle('file:exportPdf', async (_event, html: string, defaultName: string) => {
     const win = getWin()
     const { filePath, canceled } = await dialog.showSaveDialog(win, {
