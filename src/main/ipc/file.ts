@@ -263,11 +263,10 @@ export function registerFileHandlers(): void {
       await printWin.loadFile(tmpPath)
       // Wait for web fonts / CDN stylesheets to load
       await new Promise((r) => setTimeout(r, 800))
-      // Must show the window so macOS can attach the print sheet to it
       printWin.show()
-      await new Promise<void>((resolve) => {
-        printWin.webContents.print({ silent: false, printBackground: true }, () => resolve())
-      })
+      // window.print() is synchronous in Chromium — blocks until the print
+      // dialog is closed, so executeJavaScript resolves at the right time.
+      await printWin.webContents.executeJavaScript('window.print()')
       return true
     } catch {
       return false
