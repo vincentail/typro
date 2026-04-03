@@ -268,7 +268,7 @@ export function setupMenu(win: BrowserWindow, lang: Lang = 'zh'): void {
         {
           label: s.learnMore,
           click: async () => {
-            await shell.openExternal('https://github.com')
+            await shell.openExternal('https://github.com/vincentail/typro')
           }
         },
         { type: 'separator' },
