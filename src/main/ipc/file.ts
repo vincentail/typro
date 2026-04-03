@@ -2,6 +2,7 @@ import { ipcMain, dialog, BrowserWindow, app } from 'electron'
 import fs from 'fs/promises'
 import { join, dirname } from 'path'
 import Store from 'electron-store'
+import log from 'electron-log'
 
 interface StoreSchema {
   recentFiles: string[]
@@ -212,6 +213,38 @@ export function registerFileHandlers(): void {
     })
     if (canceled || !filePaths[0]) return null
     return filePaths[0]
+  })
+
+  ipcMain.handle('file:exportLog', async (_event, rendererLog: string) => {
+    // Read the electron-log main-process log file
+    let mainLog = ''
+    try {
+      const logFile = log.transports.file.getFile()
+      mainLog = await fs.readFile(logFile.path, 'utf-8')
+    } catch {
+      mainLog = '(main process log not available)'
+    }
+
+    const combined =
+      `=== MAIN PROCESS LOG ===\n${mainLog}\n\n` +
+      `${rendererLog}`
+
+    const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
+    const { filePath, canceled } = await dialog.showSaveDialog(getWin(), {
+      title: 'Export Log',
+      defaultPath: `typro-log-${ts}.log`,
+      filters: [
+        { name: 'Log Files', extensions: ['log', 'txt'] },
+        { name: 'All Files', extensions: ['*'] }
+      ]
+    })
+    if (canceled || !filePath) return null
+    try {
+      await fs.writeFile(filePath, combined, 'utf-8')
+      return { path: filePath }
+    } catch {
+      return null
+    }
   })
 
   ipcMain.handle('file:print', async (_event, html: string) => {

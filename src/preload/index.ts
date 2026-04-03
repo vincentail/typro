@@ -14,6 +14,7 @@ const typro = {
       ipcRenderer.invoke('file:exportHtml', html, defaultName),
     exportPdf: (html: string, defaultName: string) => ipcRenderer.invoke('file:exportPdf', html, defaultName),
     print: (html: string) => ipcRenderer.invoke('file:print', html),
+    exportLog: (rendererLog: string) => ipcRenderer.invoke('file:exportLog', rendererLog),
     openImage: () => ipcRenderer.invoke('file:openImage'),
     openDir: () => ipcRenderer.invoke('file:openDir'),
     readDir: (dirPath: string) => ipcRenderer.invoke('file:readDir', dirPath),
@@ -115,6 +116,10 @@ const typro = {
     onToggleDevMode: (callback: () => void) => {
       ipcRenderer.on('menu:toggleDevMode', callback)
       return () => ipcRenderer.removeListener('menu:toggleDevMode', callback)
+    },
+    onExportLog: (callback: () => void) => {
+      ipcRenderer.on('menu:exportLog', callback)
+      return () => ipcRenderer.removeListener('menu:exportLog', callback)
     }
   },
   os: {

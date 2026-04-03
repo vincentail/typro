@@ -196,6 +196,11 @@ ${renderMarkdown(content)}
         toggleDevMode()
       }),
 
+      typro.menu.onExportLog(async () => {
+        const { getRendererLogText } = await import('./lib/logger')
+        await typro.file.exportLog(getRendererLogText())
+      }),
+
       typro.menu.onPrint(async () => {
         const { renderMarkdown } = await import('./lib/markdown/parser')
         const { getPdfPreviewCss } = await import('./lib/themes/pdf-styles')

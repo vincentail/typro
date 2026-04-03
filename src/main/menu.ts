@@ -16,7 +16,7 @@ const menuStrings = {
     format: 'Format', bold: 'Bold', italic: 'Italic', strikethrough: 'Strikethrough',
     inlineCode: 'Inline Code', insertLink: 'Insert Link', insertImage: 'Insert Image',
     heading1: 'Heading 1', heading2: 'Heading 2', heading3: 'Heading 3',
-    help: 'Help', learnMore: 'Learn More',
+    help: 'Help', learnMore: 'Learn More', exportLog: 'Export Log...',
   },
   zh: {
     file: '文件', new: '新建', open: '打开...', openFolder: '打开目录...', save: '保存', saveAs: '另存为...',
@@ -29,7 +29,7 @@ const menuStrings = {
     format: '格式', bold: '粗体', italic: '斜体', strikethrough: '删除线',
     inlineCode: '行内代码', insertLink: '插入链接', insertImage: '插入图片',
     heading1: '标题 1', heading2: '标题 2', heading3: '标题 3',
-    help: '帮助', learnMore: '了解更多',
+    help: '帮助', learnMore: '了解更多', exportLog: '导出日志...',
   },
 }
 
@@ -270,6 +270,11 @@ export function setupMenu(win: BrowserWindow, lang: Lang = 'zh'): void {
           click: async () => {
             await shell.openExternal('https://github.com')
           }
+        },
+        { type: 'separator' },
+        {
+          label: s.exportLog,
+          click: () => send('menu:exportLog')
         }
       ]
     }

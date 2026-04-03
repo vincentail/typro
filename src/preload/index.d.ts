@@ -13,6 +13,7 @@ declare global {
         exportHtml: (html: string, defaultName: string) => Promise<{ path: string } | null>
         exportPdf: (html: string, defaultName: string) => Promise<{ path: string } | null>
         print: (html: string) => Promise<boolean>
+        exportLog: (rendererLog: string) => Promise<{ path: string } | null>
       }
       settings: {
         get: () => Promise<Record<string, unknown>>
@@ -45,6 +46,7 @@ declare global {
         onToggleToolbar: (callback: () => void) => () => void
         onPrint: (callback: () => void) => () => void
         onToggleDevMode: (callback: () => void) => () => void
+        onExportLog: (callback: () => void) => () => void
         setLanguage: (lang: string) => void
         updateRecent: (lang: string) => void
         onOpenDir: (callback: () => void) => () => void
