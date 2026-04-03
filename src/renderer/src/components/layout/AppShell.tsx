@@ -66,6 +66,33 @@ function syncEditorToPreview(
   previewEl.scrollTop = targetScrollTop
 }
 
+// Scroll preview to show a specific source line (cursor-based)
+function syncLineToPreview(line: number, totalLines: number, previewEl: HTMLElement): void {
+  const markers = getMarkers(previewEl)
+  if (markers.length === 0) return
+
+  let before = markers[0]
+  let after = markers[markers.length - 1]
+  for (const m of markers) {
+    if (m.line <= line) before = m
+    else { after = m; break }
+  }
+
+  const previewRect = previewEl.getBoundingClientRect()
+  let targetScrollTop: number
+  if (before.line === after.line) {
+    targetScrollTop = previewEl.scrollTop + before.el.getBoundingClientRect().top - previewRect.top
+  } else {
+    const t = (line - before.line) / (after.line - before.line)
+    const beforeTop = previewEl.scrollTop + before.el.getBoundingClientRect().top - previewRect.top
+    const afterTop = previewEl.scrollTop + after.el.getBoundingClientRect().top - previewRect.top
+    targetScrollTop = beforeTop + t * (afterTop - beforeTop)
+    if (line >= totalLines - 2) targetScrollTop = previewEl.scrollHeight
+  }
+
+  previewEl.scrollTop = targetScrollTop
+}
+
 function syncPreviewToEditor(
   previewEl: HTMLElement,
   editorView: EditorView
@@ -112,6 +139,7 @@ function syncPreviewToEditor(
 export function AppShell() {
   const { viewMode, sidebarOpen, focusMode, editorFontSize, lineHeight } = useUiStore()
   const content = useEditorStore((s) => s.content)
+  const cursorLine = useEditorStore((s) => s.cursorPos.line)
   const [editorView, setEditorView] = useState<EditorView | null>(null)
   const [splitRatio, setSplitRatio] = useState(0.5)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -173,6 +201,46 @@ export function AppShell() {
     }
     previewEl.addEventListener('scroll', onPreviewScroll, { passive: true })
     return () => previewEl.removeEventListener('scroll', onPreviewScroll)
+  }, [viewMode, editorView])
+
+  // Editor cursor → Preview scroll (cursor movement without scrolling)
+  useEffect(() => {
+    if (viewMode !== 'split' || !editorView || !previewScrollRef.current) return
+    if (syncingFrom.current === 'preview') return
+    syncingFrom.current = 'editor'
+    syncLineToPreview(cursorLine, editorView.state.doc.lines, previewScrollRef.current)
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (syncingFrom.current === 'editor') syncingFrom.current = null
+    }))
+  }, [cursorLine, viewMode, editorView])
+
+  // Preview click → Editor cursor
+  useEffect(() => {
+    if (viewMode !== 'split' || !editorView || !previewScrollRef.current) return
+    const previewEl = previewScrollRef.current
+
+    const onClick = (e: MouseEvent) => {
+      // Walk up from click target to find nearest [data-source-line] block
+      let el = e.target as HTMLElement | null
+      while (el && el !== previewEl && !el.hasAttribute('data-source-line')) {
+        el = el.parentElement
+      }
+      if (!el || !el.hasAttribute('data-source-line')) return
+      const line = parseInt(el.getAttribute('data-source-line')!, 10)
+      if (isNaN(line)) return
+
+      const totalLines = editorView.state.doc.lines
+      const safeLine = Math.max(1, Math.min(totalLines, line))
+      const pos = editorView.state.doc.line(safeLine).from
+      editorView.dispatch({
+        selection: { anchor: pos },
+        effects: EditorView.scrollIntoView(pos, { y: 'center' })
+      })
+      editorView.focus()
+    }
+
+    previewEl.addEventListener('click', onClick)
+    return () => previewEl.removeEventListener('click', onClick)
   }, [viewMode, editorView])
 
   const showSidebar = sidebarOpen && !focusMode
