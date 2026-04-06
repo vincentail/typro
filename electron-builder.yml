@@ -71,6 +71,7 @@ linux:
     - target: deb
   icon: resources/icon.png
   category: Office
+  maintainer: Typro <typro@vincentail.com>
   mimeTypes:
     - text/markdown
     - text/plain

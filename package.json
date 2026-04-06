@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "A Typora-like markdown editor for Mac, Linux, and Windows",
   "main": "./out/main/index.js",
-  "author": "Typro",
+  "author": {
+    "name": "Typro",
+    "email": "typro@vincentail.com"
+  },
   "license": "MIT",
   "scripts": {
     "dev": "electron-vite dev",
