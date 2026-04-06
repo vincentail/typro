@@ -58,8 +58,12 @@ mac:
 win:
   target:
     - target: nsis
+      arch: [x64]
     - target: portable
+      arch: [x64]
   icon: resources/icon.ico
+  # Run as current user — no UAC prompt, no SmartScreen elevation block
+  requestedExecutionLevel: asInvoker
 
 linux:
   target:
@@ -73,9 +77,15 @@ linux:
 
 nsis:
   oneClick: false
-  allowToChangeInstallationDirectory: true
+  # Per-user install → %LOCALAPPDATA%\Programs\Typro (no admin needed)
+  perMachine: false
+  allowElevation: false
+  allowToChangeInstallationDirectory: false
   createDesktopShortcut: true
   createStartMenuShortcut: true
+  shortcutName: Typro
+  installerIcon: resources/icon.ico
+  uninstallerIcon: resources/icon.ico
 
 publish:
   provider: github
