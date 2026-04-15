@@ -15,6 +15,28 @@
   line-height: 1.7;
 }
 
+/* ── Mermaid diagrams ───────────────────────────────────────────────────────── */
+.mermaidWrapper {
+  margin: 1.2em 0;
+  text-align: center;
+  overflow-x: auto;
+}
+
+.mermaidWrapper :global(svg) {
+  max-width: 100%;
+  height: auto;
+}
+
+.mermaidError {
+  padding: 10px 14px;
+  border: 1px solid #f87171;
+  border-radius: 6px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+
 /* Headings */
 .preview :global(h1),
 .preview :global(h2),

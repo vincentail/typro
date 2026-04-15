@@ -5,6 +5,7 @@ import markdownItAnchor from 'markdown-it-anchor'
 // @ts-ignore
 import markdownItFootnote from 'markdown-it-footnote'
 import katex from 'katex'
+import { mermaidPlugin } from './mermaid-plugin'
 
 // Create the markdown-it instance
 const md = new MarkdownIt({
@@ -32,6 +33,9 @@ md.use(markdownItAnchor, {
 
 // Footnotes
 md.use(markdownItFootnote)
+
+// Mermaid diagram placeholders
+md.use(mermaidPlugin)
 
 // Add source line tracking to tokens
 md.core.ruler.push('source_lines', (state) => {

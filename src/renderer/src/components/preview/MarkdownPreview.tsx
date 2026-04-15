@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react'
 import DOMPurify from 'dompurify'
+import mermaid from 'mermaid'
 import { renderMarkdown } from '../../lib/markdown/parser'
 import { useUiStore } from '../../store/uiStore'
 import { usePluginStore } from '../../store/pluginStore'
@@ -24,6 +25,36 @@ export function MarkdownPreview({ content, containerRef }: Props) {
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [content, pluginRevision])
+
+  // Render mermaid diagrams after HTML update
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const placeholders = el.querySelectorAll<HTMLElement>('pre.mermaid-diagram')
+    if (placeholders.length === 0) return
+
+    const isDark = theme === 'dark' || theme === 'solarized-dark' || theme === 'dracula'
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: isDark ? 'dark' : 'default',
+      securityLevel: 'antiscript'
+    })
+
+    placeholders.forEach(async (pre, i) => {
+      const code = pre.textContent ?? ''
+      const id = `mermaid-${Date.now()}-${i}`
+      try {
+        const { svg } = await mermaid.render(id, code)
+        const wrapper = document.createElement('div')
+        wrapper.className = styles.mermaidWrapper
+        wrapper.innerHTML = svg
+        pre.replaceWith(wrapper)
+      } catch (err) {
+        pre.classList.add(styles.mermaidError)
+        pre.textContent = String(err)
+      }
+    })
+  }, [rendered, theme])
 
   // Handle external links
   useEffect(() => {
