@@ -31,6 +31,11 @@ export default defineConfig({
       }
     },
     plugins: [react()],
+    // Pre-bundle mermaid so Vite doesn't split its internal dynamic imports
+    // into separate chunks that fail to load in Electron's file:// context
+    optimizeDeps: {
+      include: ['mermaid']
+    },
     build: {
       rollupOptions: {
         input: {
