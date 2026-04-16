@@ -154,12 +154,16 @@ export function MarkdownPreview({ content, containerRef }: Props) {
       className={`${styles.previewContainer} ${styles[`theme-${theme}`] || ''}`}
       data-theme={theme}
     >
-      <div
-        ref={ref}
-        className={styles.preview}
-        style={{ fontSize: `${previewFontSize}px`, zoom: previewZoom }}
-        dangerouslySetInnerHTML={{ __html: rendered }}
-      />
+      {/* zoom wrapper is separate from the dangerouslySetInnerHTML div so that
+          changing previewZoom never causes React to touch (and reset) innerHTML */}
+      <div style={{ zoom: previewZoom, minHeight: '100%' }}>
+        <div
+          ref={ref}
+          className={styles.preview}
+          style={{ fontSize: `${previewFontSize}px` }}
+          dangerouslySetInnerHTML={{ __html: rendered }}
+        />
+      </div>
     </div>
   )
 }
