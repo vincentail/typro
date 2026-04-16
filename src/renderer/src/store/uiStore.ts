@@ -39,6 +39,8 @@ interface UiState {
   setBgOpacity: (opacity: number) => void
   setCustomBgColor: (key: '--bg-primary' | '--bg-secondary' | '--bg-sidebar' | '--bg-titlebar', value: string) => void
   resetCustomBgColors: () => void
+  previewZoom: number
+  setPreviewZoom: (zoom: number) => void
   devMode: boolean
   toggleDevMode: () => void
 }
@@ -78,6 +80,8 @@ export const useUiStore = create<UiState>()(
       setBgOpacity: (bgOpacity) => set({ bgOpacity: Math.min(1, Math.max(0, bgOpacity)) }),
       setCustomBgColor: (key, value) => set((s) => ({ customBgColors: { ...s.customBgColors, [key]: value } })),
       resetCustomBgColors: () => set({ customBgColors: {} }),
+      previewZoom: 1.0,
+      setPreviewZoom: (zoom) => set({ previewZoom: Math.min(3, Math.max(0.3, zoom)) }),
       devMode: false,
       toggleDevMode: () => set((s) => ({ devMode: !s.devMode })),
     }),

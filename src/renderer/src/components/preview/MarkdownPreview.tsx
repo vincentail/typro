@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, type MutableRefObject, type RefObject } from 'react'
 import DOMPurify from 'dompurify'
 import mermaid from 'mermaid'
 import { renderMarkdown } from '../../lib/markdown/parser'
@@ -11,13 +11,14 @@ mermaid.initialize({ startOnLoad: false, securityLevel: 'antiscript' })
 
 interface Props {
   content: string
-  containerRef?: React.RefObject<HTMLDivElement>
+  containerRef?: RefObject<HTMLDivElement>
 }
 
 export function MarkdownPreview({ content, containerRef }: Props) {
-  const { theme, previewFontSize } = useUiStore()
+  const { theme, previewFontSize, previewZoom, setPreviewZoom } = useUiStore()
   const pluginRevision = usePluginStore((s) => s.revision)
   const ref = useRef<HTMLDivElement>(null)
+  const outerRef = useRef<HTMLDivElement>(null)
 
   const rendered = useMemo(() => {
     const html = renderMarkdown(content)
@@ -28,6 +29,41 @@ export function MarkdownPreview({ content, containerRef }: Props) {
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [content, pluginRevision])
+
+  // Zoom via Ctrl/Cmd+wheel (trackpad pinch) and Cmd+=/−/0
+  useEffect(() => {
+    const el = outerRef.current
+    if (!el) return
+
+    const onWheel = (e: WheelEvent) => {
+      if (!e.ctrlKey && !e.metaKey) return
+      e.preventDefault()
+      // trackpad pinch: deltaY is small; mouse wheel: larger steps
+      const delta = e.deltaY * (e.deltaMode === 0 ? 0.002 : 0.05)
+      setPreviewZoom(useUiStore.getState().previewZoom * (1 - delta))
+    }
+
+    const onKey = (e: KeyboardEvent) => {
+      if (!e.metaKey && !e.ctrlKey) return
+      if (e.key === '=' || e.key === '+') {
+        e.preventDefault()
+        setPreviewZoom(useUiStore.getState().previewZoom + 0.1)
+      } else if (e.key === '-') {
+        e.preventDefault()
+        setPreviewZoom(useUiStore.getState().previewZoom - 0.1)
+      } else if (e.key === '0') {
+        e.preventDefault()
+        setPreviewZoom(1.0)
+      }
+    }
+
+    el.addEventListener('wheel', onWheel, { passive: false })
+    window.addEventListener('keydown', onKey)
+    return () => {
+      el.removeEventListener('wheel', onWheel)
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [setPreviewZoom])
 
   const isDark = theme === 'dark' || theme === 'solarized-dark' || theme === 'dracula'
 
@@ -106,16 +142,22 @@ export function MarkdownPreview({ content, containerRef }: Props) {
     return () => el.removeEventListener('click', handler)
   }, [rendered])
 
+  // Merge outerRef with containerRef (scroll sync ref passed from AppShell)
+  const setOuterRef = (el: HTMLDivElement | null) => {
+    ;(outerRef as MutableRefObject<HTMLDivElement | null>).current = el
+    if (containerRef) (containerRef as MutableRefObject<HTMLDivElement | null>).current = el
+  }
+
   return (
     <div
-      ref={containerRef}
+      ref={setOuterRef}
       className={`${styles.previewContainer} ${styles[`theme-${theme}`] || ''}`}
       data-theme={theme}
     >
       <div
         ref={ref}
         className={styles.preview}
-        style={{ fontSize: `${previewFontSize}px` }}
+        style={{ fontSize: `${previewFontSize}px`, zoom: previewZoom }}
         dangerouslySetInnerHTML={{ __html: rendered }}
       />
     </div>
