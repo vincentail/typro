@@ -13,6 +13,41 @@
   font-family: var(--preview-font);
   font-size: 15px; /* default; overridden by inline style from store */
   line-height: 1.7;
+  outline: none;
+  cursor: text;
+}
+
+/* Opaque widgets (code fences, math, mermaid) — click to edit source */
+.preview :global([data-raw]:not([data-opaque]):not(sup)) {
+  cursor: pointer;
+  transition: box-shadow 0.1s;
+  border-radius: 8px;
+}
+
+.preview :global([data-raw]:not([data-opaque]):not(sup):hover) {
+  box-shadow: 0 0 0 2px var(--accent-color, #4f8cff);
+}
+
+.rawEditor {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  font-family: var(--editor-font);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+  border: 1px solid var(--accent-color, #4f8cff);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 1em 0;
+  white-space: pre;
+  overflow: auto;
+}
+
+.rawEditor:focus {
+  outline: none;
 }
 
 /* ── Mermaid diagrams ───────────────────────────────────────────────────────── */

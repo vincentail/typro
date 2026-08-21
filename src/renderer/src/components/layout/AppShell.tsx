@@ -214,35 +214,6 @@ export function AppShell() {
     }))
   }, [cursorLine, viewMode, editorView])
 
-  // Preview click → Editor cursor
-  useEffect(() => {
-    if (viewMode !== 'split' || !editorView || !previewScrollRef.current) return
-    const previewEl = previewScrollRef.current
-
-    const onClick = (e: MouseEvent) => {
-      // Walk up from click target to find nearest [data-source-line] block
-      let el = e.target as HTMLElement | null
-      while (el && el !== previewEl && !el.hasAttribute('data-source-line')) {
-        el = el.parentElement
-      }
-      if (!el || !el.hasAttribute('data-source-line')) return
-      const line = parseInt(el.getAttribute('data-source-line')!, 10)
-      if (isNaN(line)) return
-
-      const totalLines = editorView.state.doc.lines
-      const safeLine = Math.max(1, Math.min(totalLines, line))
-      const pos = editorView.state.doc.line(safeLine).from
-      editorView.dispatch({
-        selection: { anchor: pos },
-        effects: EditorView.scrollIntoView(pos, { y: 'center' })
-      })
-      editorView.focus()
-    }
-
-    previewEl.addEventListener('click', onClick)
-    return () => previewEl.removeEventListener('click', onClick)
-  }, [viewMode, editorView])
-
   const showSidebar = sidebarOpen && !focusMode
 
   // CSS variables for editor font size and line height — read by MarkdownEditor

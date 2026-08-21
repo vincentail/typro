@@ -6,6 +6,7 @@ import markdownItAnchor from 'markdown-it-anchor'
 import markdownItFootnote from 'markdown-it-footnote'
 import katex from 'katex'
 import { mermaidPlugin } from './mermaid-plugin'
+import { encodeRaw } from './base64'
 
 // Create the markdown-it instance
 const md = new MarkdownIt({
@@ -33,6 +34,23 @@ md.use(markdownItAnchor, {
 
 // Footnotes
 md.use(markdownItFootnote)
+
+// Mark footnote refs/section as opaque, non-editable widgets in the WYSIWYG
+// preview — round-tripped verbatim by htmlToMarkdown rather than re-serialized.
+const originalFootnoteRef = md.renderer.rules.footnote_ref!.bind(md.renderer.rules)
+md.renderer.rules.footnote_ref = (tokens, idx, options, env, self) => {
+  const html = originalFootnoteRef(tokens, idx, options, env, self)
+  const label = tokens[idx].meta?.label ?? ''
+  return html.replace('<sup class="footnote-ref">', `<sup class="footnote-ref" contenteditable="false" data-raw="${encodeRaw(`[^${label}]`)}">`)
+}
+
+const originalFootnoteBlockOpen = md.renderer.rules.footnote_block_open!.bind(md.renderer.rules)
+md.renderer.rules.footnote_block_open = (tokens, idx, options, env, self) => {
+  const html = originalFootnoteBlockOpen(tokens, idx, options, env, self)
+  return html
+    .replace('<hr class="footnotes-sep">', '<hr class="footnotes-sep" contenteditable="false">')
+    .replace('<section class="footnotes">', '<section class="footnotes" contenteditable="false" data-opaque="footnotes">')
+}
 
 // Mermaid diagram placeholders
 md.use(mermaidPlugin)
@@ -101,20 +119,26 @@ md.block.ruler.before('fence', 'math_block', (state, start, end, silent) => {
   return true
 })
 
-// KaTeX renderers
+// KaTeX renderers.
+// contenteditable="false" + data-raw makes these opaque widgets in the WYSIWYG
+// preview: clicking reveals the raw $...$ / $$...$$ source for editing.
 md.renderer.rules['math_inline'] = (tokens, idx) => {
+  const raw = encodeRaw(tokens[idx].content)
   try {
-    return katex.renderToString(tokens[idx].content, { throwOnError: false, displayMode: false })
+    const rendered = katex.renderToString(tokens[idx].content, { throwOnError: false, displayMode: false })
+    return `<span class="math-inline" contenteditable="false" data-raw="${raw}">${rendered}</span>`
   } catch {
-    return `<code>${tokens[idx].content}</code>`
+    return `<code contenteditable="false" data-raw="${raw}">${tokens[idx].content}</code>`
   }
 }
 
 md.renderer.rules['math_block'] = (tokens, idx) => {
+  const raw = encodeRaw(tokens[idx].content)
   try {
-    return `<div class="math-block">${katex.renderToString(tokens[idx].content, { throwOnError: false, displayMode: true })}</div>`
+    const rendered = katex.renderToString(tokens[idx].content, { throwOnError: false, displayMode: true })
+    return `<div class="math-block" contenteditable="false" data-raw="${raw}">${rendered}</div>`
   } catch {
-    return `<pre><code>${tokens[idx].content}</code></pre>`
+    return `<pre class="math-block" contenteditable="false" data-raw="${raw}"><code>${tokens[idx].content}</code></pre>`
   }
 }
 
