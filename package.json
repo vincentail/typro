@@ -1,6 +1,6 @@
 {
   "name": "typro",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A Typora-like markdown editor for Mac, Linux, and Windows",
   "main": "./out/main/index.js",
   "author": {

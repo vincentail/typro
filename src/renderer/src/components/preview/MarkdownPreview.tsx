@@ -133,6 +133,23 @@ export function MarkdownPreview({ content, containerRef }: Props) {
           wrapper.setAttribute('contenteditable', 'false')
           wrapper.dataset.raw = pre.dataset.raw
           wrapper.dataset.lang = 'mermaid'
+
+          const enlargeBtn = document.createElement('button')
+          enlargeBtn.type = 'button'
+          enlargeBtn.className = styles.mermaidEnlargeBtn
+          enlargeBtn.title = 'Enlarge diagram'
+          enlargeBtn.setAttribute('aria-label', 'Enlarge diagram')
+          enlargeBtn.textContent = '⤢'
+          enlargeBtn.addEventListener('click', (e) => {
+            // Stop this from bubbling into the click-to-edit-source handler,
+            // and from moving the WYSIWYG caret into the (non-editable) diagram.
+            e.preventDefault()
+            e.stopPropagation()
+            const svgEl = wrapper.querySelector('svg')
+            if (svgEl) openMermaidLightbox(svgEl)
+          })
+          wrapper.appendChild(enlargeBtn)
+
           pre.replaceWith(wrapper)
         } catch (err) {
           if (!cancelled) {
@@ -351,4 +368,93 @@ function insertLink(): void {
     a.textContent = url
   }
   range.insertNode(a)
+}
+
+// Full-screen lightbox for viewing a mermaid diagram larger than the preview
+// pane allows. Wheel to zoom further, drag to pan once zoomed past fit,
+// Escape/backdrop-click/close-button to dismiss.
+function openMermaidLightbox(svgEl: SVGElement): void {
+  const overlay = document.createElement('div')
+  overlay.className = styles.lightboxOverlay
+
+  const stage = document.createElement('div')
+  stage.className = styles.lightboxStage
+
+  // Keep ids as-is: mermaid's inline <style> targets them by id, and a
+  // duplicate id elsewhere in the document doesn't break CSS matching (only
+  // getElementById, which nothing here relies on).
+  const clone = svgEl.cloneNode(true) as SVGElement
+  // Drop mermaid's fixed pixel width/height so the SVG scales up to fill the
+  // stage (governed by its viewBox + preserveAspectRatio) instead of
+  // rendering at its original, often small, inline size.
+  clone.removeAttribute('width')
+  clone.removeAttribute('height')
+  clone.classList.add(styles.lightboxSvg)
+  stage.appendChild(clone)
+
+  const closeBtn = document.createElement('button')
+  closeBtn.type = 'button'
+  closeBtn.className = styles.lightboxClose
+  closeBtn.setAttribute('aria-label', 'Close')
+  closeBtn.textContent = '✕'
+
+  overlay.appendChild(stage)
+  overlay.appendChild(closeBtn)
+
+  let scale = 1
+  let tx = 0
+  let ty = 0
+  const applyTransform = (): void => {
+    stage.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`
+  }
+
+  const onWheel = (e: WheelEvent): void => {
+    e.preventDefault()
+    const delta = e.deltaY * (e.deltaMode === 0 ? -0.002 : -0.05)
+    scale = Math.min(6, Math.max(0.5, scale * (1 + delta)))
+    applyTransform()
+  }
+
+  let dragging = false
+  let lastX = 0
+  let lastY = 0
+  const onPointerDown = (e: PointerEvent): void => {
+    if (e.target === closeBtn) return
+    dragging = true
+    lastX = e.clientX
+    lastY = e.clientY
+    overlay.setPointerCapture(e.pointerId)
+  }
+  const onPointerMove = (e: PointerEvent): void => {
+    if (!dragging) return
+    tx += e.clientX - lastX
+    ty += e.clientY - lastY
+    lastX = e.clientX
+    lastY = e.clientY
+    applyTransform()
+  }
+  const onPointerUp = (): void => {
+    dragging = false
+  }
+
+  const close = (): void => {
+    document.removeEventListener('keydown', onKeyDown)
+    overlay.remove()
+  }
+  const onKeyDown = (e: KeyboardEvent): void => {
+    if (e.key === 'Escape') close()
+  }
+  const onOverlayClick = (e: MouseEvent): void => {
+    if (e.target === overlay) close()
+  }
+
+  overlay.addEventListener('wheel', onWheel, { passive: false })
+  overlay.addEventListener('pointerdown', onPointerDown)
+  overlay.addEventListener('pointermove', onPointerMove)
+  overlay.addEventListener('pointerup', onPointerUp)
+  overlay.addEventListener('click', onOverlayClick)
+  closeBtn.addEventListener('click', close)
+  document.addEventListener('keydown', onKeyDown)
+
+  document.body.appendChild(overlay)
 }

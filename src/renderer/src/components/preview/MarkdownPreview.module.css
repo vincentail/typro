@@ -52,6 +52,7 @@
 
 /* ── Mermaid diagrams ───────────────────────────────────────────────────────── */
 .mermaidWrapper {
+  position: relative;
   margin: 1.2em 0;
   text-align: center;
   overflow-x: auto;
@@ -60,6 +61,89 @@
 .mermaidWrapper :global(svg) {
   max-width: 100%;
   height: auto;
+}
+
+.mermaidEnlargeBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.mermaidWrapper:hover .mermaidEnlargeBtn {
+  opacity: 1;
+}
+
+.mermaidEnlargeBtn:hover {
+  color: var(--text-primary);
+  border-color: var(--accent-color, #4f8cff);
+}
+
+.lightboxOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: grab;
+}
+
+.lightboxOverlay:active {
+  cursor: grabbing;
+}
+
+.lightboxStage {
+  width: 90vw;
+  height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.02s linear;
+  will-change: transform;
+}
+
+.lightboxSvg {
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  user-select: none;
+}
+
+.lightboxClose {
+  position: fixed;
+  top: 20px;
+  right: 24px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.lightboxClose:hover {
+  background: rgba(255, 255, 255, 0.22);
 }
 
 .mermaidError {
